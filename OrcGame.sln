@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 25.0.1704.2
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrcGame", "OrcGame\OrcGame.csproj", "{960862C4-B8D8-410C-9602-3130EB5597D7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{3E70A469-7D84-483C-B2B7-2C5CBB41095C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{960862C4-B8D8-410C-9602-3130EB5597D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{960862C4-B8D8-410C-9602-3130EB5597D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{960862C4-B8D8-410C-9602-3130EB5597D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{960862C4-B8D8-410C-9602-3130EB5597D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E70A469-7D84-483C-B2B7-2C5CBB41095C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E70A469-7D84-483C-B2B7-2C5CBB41095C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E70A469-7D84-483C-B2B7-2C5CBB41095C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E70A469-7D84-483C-B2B7-2C5CBB41095C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {916D9C6C-D836-4B05-8369-AA3578B8EEF0}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
+EndGlobal
