@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace OrcGame.GOAP
+namespace OrcGame.GOAP.Core
 {
     public abstract record Objective
     {

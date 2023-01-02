@@ -1,5 +1,5 @@
 using System.Numerics;
-using OrcGame.Entity;
+using OrcGame.Entity.Item;
 
 namespace Tests;
 
@@ -14,7 +14,7 @@ public class ItemClass
     [Test]
     public void Create_New_Item()
     {
-        var item = new Item()
+        var item = new BaseItem()
         {
             Location = new Vector2(1, 1),
             EntityName = "Bone",

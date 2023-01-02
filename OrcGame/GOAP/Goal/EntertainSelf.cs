@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using OrcGame.Entity;
+using OrcGame.GOAP.Core;
 
-namespace OrcGame.GOAP
+namespace OrcGame.GOAP.Goal;
+public class EntertainSelf : GoapGoal
 {
-    public class EntertainSelf : Goal
+    public override Objective GetObjective(Dictionary<string, object> simulatedState)
     {
-        public override Objective GetObjective(Dictionary<string, object> simulatedState)
-        {
-            throw new NotImplementedException();
-        }
+        throw new NotImplementedException();
+    }
 
-        public override bool IsValid()
-        {
-            throw new NotImplementedException();
-        }
+    public override bool IsValid(Dictionary<string, object> state)
+    {
+        throw new NotImplementedException();
+    }
 
-        public override bool TriggerConditionsMet()
-        {
-            throw new NotImplementedException();
-        }
+    public override bool TriggerConditionsMet(Dictionary<string, object> state)
+    {
+        throw new NotImplementedException();
     }
 }
+
 

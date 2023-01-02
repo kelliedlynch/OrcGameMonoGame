@@ -1,19 +1,22 @@
 ﻿using System.Numerics;
 using OrcGame.GOAP;
-using OrcGame.Entity;
+using OrcGame.GOAP.Core;
+using OrcGame.GOAP.Goal;
+using OrcGame.Entity.Creature;
+using OrcGame.Entity.Item;
 
 namespace Tests
 {
-    public class GoapAgentAndSimulator
+    public class GoapAgentAndObjectives
     {
-        private Creature _orc = new Creature();
-        private Item _bone = new Item();
-        private Item _stick = new Item();
+        private BaseCreature _orc = new BaseCreature();
+        private BaseItem _bone = new BaseItem();
+        private BaseItem _stick = new BaseItem();
 
         [SetUp]
         public void Setup()
         {
-            _orc = new Creature()
+            _orc = new BaseCreature()
             {
                 Location = new Vector2(1, 1),
                 EntityName = "Orc",
@@ -23,7 +26,7 @@ namespace Tests
                 IdleState = IdleState.Idle
             };
 
-            _bone = new Item()
+            _bone = new BaseItem()
             {
                 Location = new Vector2(1, 1),
                 EntityName = "Bone",
@@ -32,7 +35,7 @@ namespace Tests
                 Material = Material.Bone
             };
 
-            _stick = new Item()
+            _stick = new BaseItem()
             {
                 Location = new Vector2(1, 1),
                 EntityName = "Stick",

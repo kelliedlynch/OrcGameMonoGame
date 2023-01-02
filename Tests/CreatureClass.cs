@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-using OrcGame.Entity;
+using OrcGame.Entity.Creature;
 
 namespace Tests;
 
@@ -16,7 +16,7 @@ public class CreatureClass
     [Test]
     public void Create_New_Creature()
     {
-        var creature = new Creature()
+        var creature = new BaseCreature()
         {
             Location = new Vector2(1, 1),
             EntityName = "Orc",
