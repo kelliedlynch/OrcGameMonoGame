@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using OrcGame.Entity;
 
 namespace OrcGame.GOAP
 {
     public class EntertainSelf : Goal
     {
-        public override OperatorObjective GetObjective()
+        public override Objective GetObjective(Dictionary<string, object> simulatedState)
         {
             throw new NotImplementedException();
         }

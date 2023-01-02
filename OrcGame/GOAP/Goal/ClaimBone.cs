@@ -23,36 +23,38 @@ namespace OrcGame.GOAP
             throw new NotImplementedException();
         }
 
-        public override OperatorObjective GetObjective()
+        public override OperatorObjective GetObjective(Dictionary<string, object> simulatedState)
         {
+            var ownedList = simulatedState["Owned"] as ArrayList;
             var ownedQuery =
-                from owned in Creature.Owned
-                where owned.Material == Material.Bone
+                from Dictionary<string, object> owned in ownedList
+                where (Material)owned["Material"] == Material.Bone
                 select owned;
+            var carriedList = simulatedState["Carried"] as ArrayList;
             var carriedQuery =
-                from item in Creature.Carried
-                where item.Material == Material.Bone
-                select item;
+                from Dictionary<string, object> carried in carriedList
+                where (Material)carried["Material"] == Material.Bone
+                select carried;
 
-            var objective1 = new QueryObjective()
+            var carriedContainsBone = new QueryObjective()
             {
                 Target = "Creature.Carried",
-                Operator = Operator.ContainsAtLeast,
+                QueryType = QueryType.ContainsAtLeast,
                 Quantity = 1,
-                PropsQuery = (IEnumerable<Entity.Entity>)ownedQuery
+                PropsQuery = (IEnumerable<Dictionary<string, object>>)ownedQuery
             };
-            var objective2 = new QueryObjective()
+            var ownedContainsBone = new QueryObjective()
             {
                 Target = "Creature.Owned",
-                Operator = Operator.ContainsAtLeast,
+                QueryType = QueryType.ContainsAtLeast,
                 Quantity = 1,
-                PropsQuery = (IEnumerable<Entity.Entity>)ownedQuery
+                PropsQuery = (IEnumerable<Dictionary<string, object>>)ownedQuery
             };
 
             var compiledObjective = new OperatorObjective()
             {
-                Operator = Operator.AND,
-                ObjectivesList = { objective1, objective2 }
+                Operator = Operator.And,
+                ObjectivesList = new List<Objective>(){ carriedContainsBone, ownedContainsBone }
             };
 
             return compiledObjective;

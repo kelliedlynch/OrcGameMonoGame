@@ -6,7 +6,7 @@ namespace OrcGame.GOAP
     public abstract record Objective
     {
         public string Target;
-        public Operator Operator;
+        public Conditional Conditional;
     }
 
     public abstract record StringValueObjective : Objective
@@ -31,28 +31,40 @@ namespace OrcGame.GOAP
 
     public record QueryObjective : Objective
     {
+        public QueryType QueryType;
         public int Quantity;
-        public IEnumerable<Entity.Entity> PropsQuery;
+        public IEnumerable<Dictionary<string, object>> PropsQuery;
     }
 
     public record OperatorObjective : Objective
     {
+        public Operator Operator;
         public List<Objective> ObjectivesList;
     }
 
     public enum Operator
     {
-        ContainsAtLeast,
-        ContainsLessThan,
+        And,
+        Or,
+        Not
+    }
+
+    public enum Conditional
+    {
         Equals,
         DoesNotEqual,
         IsGreaterThan,
         IsLessThan,
         IsGreaterThanOrEqualTo,
-        IsLessThanOrEqualTo,
-        AND,
-        OR,
-        NOT
+        IsLessThanOrEqualTo
+    }
+
+    public enum QueryType
+    {
+        ContainsAtLeast,
+        ContainsLessThan,
+        ContainsExactly,
+        DoesNotContain
     }
 }
 

@@ -1,12 +1,10 @@
-﻿using System.Diagnostics;
-using System.Numerics;
+﻿using System.Numerics;
 using OrcGame.GOAP;
 using OrcGame.Entity;
 
-
 namespace Tests
 {
-    public class GoapSimulatorClass
+    public class GoapAgentAndSimulator
     {
         private Creature _orc = new Creature();
         private Item _bone = new Item();
@@ -53,16 +51,33 @@ namespace Tests
             _orc.Owned.Add(_stick);
 
             var sim = GoapSimulator.SimulateEntity(_orc);
-            foreach (var pair in sim)
-            {
-                Debug.Write("WHAT IS GOING ON");
-                Debug.Write(pair.Key);
-                Debug.Write(pair.Value);
-            }
-            
             Assert.That(sim, Is.Not.Null);
         }
 
+        [Test]
+        public void Test_Complete_Goal_Against_Simulated_Creature()
+        {
+            _orc.Carried.Add(_bone);
+            _orc.Owned.Add(_bone);
+            var sim = GoapSimulator.SimulateEntity(_orc);
+            var agent = new Agent();
+            var goal = new ClaimBone(_orc);
+            
+            Assert.That(agent.IsGoalReached(goal, sim), Is.True);
+        }
+
+        [Test]
+        public void Test_Incomplete_Goal_Against_Simulated_Creature()
+        {
+            _orc.Carried.Add(_bone);
+            var sim = GoapSimulator.SimulateEntity(_orc);
+            var agent = new Agent();
+            var goal = new ClaimBone(_orc);
+            
+            Assert.That(agent.IsGoalReached(goal, sim), Is.False);
+        }
+        
+        
     }
 }
 
