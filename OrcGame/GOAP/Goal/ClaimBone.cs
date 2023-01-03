@@ -21,54 +21,42 @@ public class ClaimBone : GoapGoal
         throw new NotImplementedException();
     }
 
-    public Dictionary<string, object> DesiredState()
-    {
-        return new Dictionary<string, object>() {
-            { "Creature", new Dictionary<string, object>() {
-                    { "Carried", new Bag<Dictionary<string, object>>() {
-                        new Dictionary<string, object>(){ { "Material", Material.Bone } }
-                    } },
-                    { "Owned", new Bag<Dictionary<string, object>>() {
-                        new Dictionary<string, object>(){ { "Material", Material.Bone } }
-                    } },
-                }}
-        };
-    } 
-    public override OperatorObjective GetObjective(Dictionary<string, object> simulatedState)
-    {
-        if (simulatedState["Creature"] is not Dictionary<string, object> creature) { return null; }
-        var ownedList = creature["Owned"] as Bag<Dictionary<string, object>>;
-        var ownedQuery =
-            from Dictionary<string, object> owned in ownedList
-            where (Material)owned["Material"] == Material.Bone
-            select owned;
-        var carriedList = creature["Carried"] as Bag<Dictionary<string, object>>;
-        var carriedQuery =
-            from Dictionary<string, object> carried in carriedList
-            where (Material)carried["Material"] == Material.Bone
-            select carried;
 
+    public override OperatorObjective GetObjective()
+    {
+        var desired = new Dictionary<string, dynamic>() {
+            { "Creature", new Dictionary<string, dynamic>() {
+                { "Carried", new Bag<Dictionary<string, dynamic>>() {
+                    new Dictionary<string, dynamic>(){ { "Material", Material.Bone } }
+                } },
+                { "Owned", new Bag<Dictionary<string, dynamic>>() {
+                    new Dictionary<string, dynamic>(){ { "Material", Material.Bone } }
+                } },
+            }}
+        };
+        if (desired["Creature"] is not Dictionary<string, dynamic> creature) return null;
+        if (desired["Creature"]["Carried"] is not Bag<Dictionary<string, dynamic>>) return null;
         var carriedContainsBone = new QueryObjective()
         {
             Target = "Creature.Carried",
             QueryType = QueryType.ContainsAtLeast,
             Quantity = 1,
-            PropsQuery = (IEnumerable<Dictionary<string, object>>)carriedQuery
+            PropsQuery = creature["Carried"][0] as Dictionary<string, dynamic>
         };
         var ownedContainsBone = new QueryObjective()
         {
             Target = "Creature.Owned",
             QueryType = QueryType.ContainsAtLeast,
             Quantity = 1,
-            PropsQuery = (IEnumerable<Dictionary<string, object>>)ownedQuery
+            PropsQuery = creature["Owned"][0] as Dictionary<string, dynamic>
         };
-
+    
         var compiledObjective = new OperatorObjective()
         {
             Operator = Operator.And,
             ObjectivesList = new Bag<Objective>(){ carriedContainsBone, ownedContainsBone }
         };
-
+    
         return compiledObjective;
     }
 

@@ -5,9 +5,10 @@ namespace OrcGame.GOAP.Core;
 public abstract class GoapAction 
 {
     public BaseCreature Creature { get; set; }
-    public abstract bool IsValid(Dictionary<string, object> desiredState);
+
+    public abstract (bool, Dictionary<string, dynamic>) IsValid(Objective objective, Dictionary<string, dynamic> state);
     public abstract bool TriggerConditionsMet(Dictionary<string, object> worldState, Dictionary<string, object> goalState);
-    public abstract void GetTransform(Dictionary<string, object> state);
+    public abstract (bool, Dictionary<string, dynamic>) ApplyTransform(Dictionary<string, object> state);
 }
 
 

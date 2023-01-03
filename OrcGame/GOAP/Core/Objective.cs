@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MonoGame.Extended.Collections;
 
 namespace OrcGame.GOAP.Core
@@ -9,31 +10,17 @@ namespace OrcGame.GOAP.Core
         public Conditional Conditional;
     }
 
-    public abstract record StringValueObjective : Objective
+    public record ValueObjective : Objective
     {
-        public string Value;
-    }
-
-    public abstract record IntValueObjective : Objective
-    {
-        public int Value;
-    }
-
-    public abstract record FloatValueObjective : Objective
-    {
-        public float Value;
-    }
-
-    public abstract record BoolValueObjective : Objective
-    {
-        public bool Value;
+        public Type ValueType;
+        public dynamic Value;
     }
 
     public record QueryObjective : Objective
     {
         public QueryType QueryType;
         public int Quantity;
-        public IEnumerable<Dictionary<string, object>> PropsQuery;
+        public Dictionary<string, object> PropsQuery;
     }
 
     public record OperatorObjective : Objective

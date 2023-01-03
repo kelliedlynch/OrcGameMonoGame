@@ -54,36 +54,15 @@ namespace Tests
         public void PickUpItem_IsValid()
         {
             var goal = new ClaimBone(_orc);
+            _orc.Tagged.Add(_bone);
             var action = new PickUpItem();
             var sim = GoapSimulator.SimulateWorldStateFor(_orc);
-            var desired = goal.DesiredState();
-            var objective = goal.GetObjective(desired);
-            // var isValid = action.IsValid(objective);
-            // Assert.That(isValid, Is.True);
+            var objective = goal.GetObjective();
+            var isValid = action.IsValid(objective, sim);
+            Assert.That(isValid.Item1, Is.True);
+            Assert.That(isValid.Item2["Creature"]["Carried"].Count, Is.Not.Zero);
+            Assert.That(isValid.Item2["Creature"]["Tagged"].Count, Is.Zero);
         }
-
-        // [Test]
-        // public void Test_Complete_Goal_Against_Simulated_Creature()
-        // {
-        //     _orc.Carried.Add(_bone);
-        //     _orc.Owned.Add(_bone);
-        //     var sim = GoapSimulator.SimulateEntity(_orc);
-        //     var agent = new Agent();
-        //     var goal = new ClaimBone(_orc);
-        //     
-        //     Assert.That(agent.IsGoalReached(goal, sim), Is.True);
-        // }
-        //
-        // [Test]
-        // public void Test_Incomplete_Goal_Against_Simulated_Creature()
-        // {
-        //     _orc.Carried.Add(_bone);
-        //     var sim = GoapSimulator.SimulateEntity(_orc);
-        //     var agent = new Agent();
-        //     var goal = new ClaimBone(_orc);
-        //     
-        //     Assert.That(agent.IsGoalReached(goal, sim), Is.False);
-        // }
 
         [TearDown]
         public void TearDown()

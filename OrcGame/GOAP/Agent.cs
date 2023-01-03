@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
+using MonoGame.Extended.Collections;
 using OrcGame.Entity.Creature;
 using OrcGame.GOAP.Core;
 
 namespace OrcGame.GOAP;
 public class Agent
 {
-	private Dictionary<string, object> _simulatedState;
+	private Dictionary<string, dynamic> _simulatedState;
 	public void FindBestGoal(BaseCreature creature)
 	{
 
@@ -18,26 +21,26 @@ public class Agent
 		
 	}
 
-	public bool IsGoalReached(GoapGoal goal, Dictionary<string, object> state = null)
+	public bool IsGoalReached(GoapGoal goal, Dictionary<string, dynamic> state = null)
 	{
 		state ??= _simulatedState;
-		var obj = goal.GetObjective(state);
+		var obj = goal.GetObjective();
 		return ParseObjective(obj, state);
 	}
 
-	private bool ParseObjective(Objective obj, Dictionary<string, object> state = null)
+	private bool ParseObjective(Objective obj, Dictionary<string, dynamic> state = null)
 	{
 		state ??= _simulatedState;
 		return obj switch
 		{
 			QueryObjective objective => ParseQueryObjective(objective, state),
 			OperatorObjective objective => ParseOperatorObjective(objective, state),
-			BoolValueObjective objective => ParseBoolValueObjective(objective, state),
+			ValueObjective objective => ParseValueObjective(objective, state),
 			_ => false
 		};
 	}
 
-	private bool ParseOperatorObjective(OperatorObjective obj, Dictionary<string, object> state = null)
+	private bool ParseOperatorObjective(OperatorObjective obj, Dictionary<string, dynamic> state = null)
 	{
 		state ??= _simulatedState;
 		var allPassed = true;
@@ -74,32 +77,80 @@ public class Agent
 		return allPassed;
 	}
 
-	private bool ParseQueryObjective(QueryObjective obj, Dictionary<string, object> state = null)
+	private bool ParseQueryObjective(QueryObjective obj, Dictionary<string, dynamic> state = null)
 	{
 		state ??= _simulatedState;
-		var found = obj.PropsQuery;
-		
-		switch (obj.QueryType)
+		Bag<Dictionary<string, dynamic>> relevant =
+			ExtractRelevantValueFromState(obj.Target, typeof(Bag<Dictionary<string, dynamic>>), state);
+
+		var found = FindGivenPropertiesInDictList(obj.PropsQuery, relevant).Item1;
+		if (found == null) { return false;}
+
+		return obj.QueryType switch
 		{
-			case QueryType.ContainsAtLeast:
-				return found.Count() >= obj.Quantity;
-			case QueryType.ContainsLessThan:
-				return found.Count() <= obj.Quantity;
-			case QueryType.ContainsExactly:
-				return found.Count() == obj.Quantity;
-			case QueryType.DoesNotContain:
-				return !found.Any();
-			default:
-				return false;
-		}
+			QueryType.ContainsAtLeast => found.Count() >= obj.Quantity,
+			QueryType.ContainsLessThan => found.Count() <= obj.Quantity,
+			QueryType.ContainsExactly => found.Count() == obj.Quantity,
+			QueryType.DoesNotContain => !found.Any(),
+			_ => false
+		};
 	}
 
-	private bool ParseBoolValueObjective(BoolValueObjective obj, Dictionary<string, object> state = null)
+	// Returns: (items found or null, dictionary with found item removed)
+	private (Bag<Dictionary<string, dynamic>>, Bag<Dictionary<string, dynamic>>) FindGivenPropertiesInDictList(Dictionary<string, dynamic> props,
+		IEnumerable<Dictionary<string, dynamic>> list)
+	{
+		var remainingInList = new Bag<Dictionary<string, dynamic>>();
+		foreach (var item in list)
+		{
+			remainingInList.Add(GoapSimulator.CloneState(item));
+		}
+
+		var foundItems = new Bag<Dictionary<string, dynamic>>();
+		foreach (var item in remainingInList)
+		{
+			if (props.Keys.All(item.ContainsKey))
+			{
+				foundItems.Add(item);
+			}
+		}
+
+		if (foundItems.Count != 0)
+		{
+			remainingInList.RemoveAll(foundItems);
+		}
+
+		return (foundItems, remainingInList);
+	}
+
+	private bool ParseValueObjective(ValueObjective obj, Dictionary<string, dynamic> state = null)
 	{
 		state ??= _simulatedState;
 		var objValue = obj.Value;
 		var stateValue = state[obj.Target] is bool && (bool)state[obj.Target];
 		return stateValue == objValue;
+	}
+
+	private dynamic ExtractRelevantValueFromState(string target, Type type, Dictionary<string, dynamic> state = null)
+	{
+		state ??= _simulatedState;
+		dynamic relevantValue = null;
+		var nestedTarget = target.Split(".");
+		var current = state;
+		for (var i=0; i < nestedTarget.Count() - 1; i++)
+		{
+			if (current[nestedTarget[i]] is Dictionary<string, dynamic> cur)
+			{
+				current = cur;
+			}
+		}
+
+		if (current[nestedTarget[^1]] is Bag<Dictionary<string, dynamic>> sub)
+		{
+			relevantValue = sub;
+		}
+
+		return relevantValue;
 	}
 }
 

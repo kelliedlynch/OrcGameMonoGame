@@ -25,44 +25,41 @@ public static class GoapSimulator
 	}
 	public static Dictionary<string, object> SimulateEntity(Entity.Entity entity)
 	{
+		// TODO: something is going wrong in here that's making string fields have a Bag value
 		var propValueList = new Dictionary<string, object>();
 		foreach (var prop in entity.GetType().GetFields())
 		{
 
 			var value = prop.GetValue(entity);
 
-			if (prop.FieldType.IsValueType)
+			if (prop.FieldType.IsValueType || prop.FieldType == typeof(string))
 			{
                 propValueList.Add(prop.Name, value);
 				continue;
             }
 
 			if (value is not IEnumerable cValue) continue;
-			var collectionValue = new Bag<Dictionary<string, object>>();
+			var collectionValue = new Bag<Dictionary<string, dynamic>>();
 			foreach (var item in cValue)
 			{
-				if (item is Entity.Entity eItem)
-				{
-					collectionValue.Add(SimulateEntity(eItem));
-					continue;
-				}
-				// collectionValue.Add(item);
+				if (item is not Entity.Entity eItem) continue;
+				collectionValue.Add(SimulateEntity(eItem));
 			}
 			propValueList.Add(prop.Name, collectionValue);
 		}
 		return propValueList;
 	}
 
-	public static Dictionary<string, object> CloneState(Dictionary<string, object> state)
+	public static Dictionary<string, dynamic> CloneState(Dictionary<string, dynamic> state)
 	{
-		var clone = new Dictionary<string, object>();
+		var clone = new Dictionary<string, dynamic>();
 		foreach (var item in state)
 		{
 			switch (item.Value)
 			{
-				case Bag<Dictionary<string, object>> list:
+				case Bag<Dictionary<string, dynamic>> list:
 				{
-					var cloneList = new Bag<Dictionary<string, object>>();
+					var cloneList = new Bag<Dictionary<string, dynamic>>();
 					foreach (var arrayItem in list)
 					{
 						if (arrayItem != null)
@@ -74,7 +71,7 @@ public static class GoapSimulator
 					clone[item.Key] = cloneList;
 					break;
 				}
-				case Dictionary<string, object> dict:
+				case Dictionary<string, dynamic> dict:
 				{
 					var cloneDict = CloneState(dict);
 					clone[item.Key] = cloneDict;

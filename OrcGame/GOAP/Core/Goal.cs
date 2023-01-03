@@ -5,13 +5,13 @@ using OrcGame.Entity.Creature;
 namespace OrcGame.GOAP.Core;
 public abstract class GoapGoal
 {
-    protected GoapGoal(BaseCreature creature)
+    protected GoapGoal(BaseCreature c)
     {
-        Creature = creature;
+        Creature = c;
     }
 
     public BaseCreature Creature { get; set; }
-    public abstract Objective GetObjective(Dictionary<string, object> simulatedState);
+    public abstract Objective GetObjective();
     public abstract bool IsValid(Dictionary<string, object> state);
     public abstract bool TriggerConditionsMet(Dictionary<string, object> state);
 }
