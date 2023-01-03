@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MonoGame.Extended.Collections;
 
 namespace OrcGame.GOAP.Core
 {
@@ -38,7 +39,7 @@ namespace OrcGame.GOAP.Core
     public record OperatorObjective : Objective
     {
         public Operator Operator;
-        public List<Objective> ObjectivesList;
+        public Bag<Objective> ObjectivesList;
     }
 
     public enum Operator

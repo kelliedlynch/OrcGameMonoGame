@@ -1,10 +1,28 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using MonoGame.Extended.Collections;
+using OrcGame.Entity.Creature;
+using OrcGame.Entity.Item;
 
 namespace OrcGame.GOAP.Core;
 public static class GoapSimulator
 {
+	private static readonly ItemManager ItemManager = ItemManager.GetItemManager();
+	
+	public static Dictionary<string, object> SimulateWorldStateFor(BaseCreature creature)
+	{
+		var avail = new Bag<Dictionary<string, object>>();
+		foreach (var item in ItemManager.AvailableItems)
+		{
+			avail.Add(SimulateEntity(item));
+		}
+		var state = new Dictionary<string, object>()
+		{
+			{ "Creature", SimulateEntity(creature) },
+			{ "AvailableItems", avail }
+		};
+		return state;
+	}
 	public static Dictionary<string, object> SimulateEntity(Entity.Entity entity)
 	{
 		var propValueList = new Dictionary<string, object>();

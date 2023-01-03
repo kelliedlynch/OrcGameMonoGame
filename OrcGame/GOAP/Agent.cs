@@ -25,7 +25,7 @@ public class Agent
 		return ParseObjective(obj, state);
 	}
 
-	public bool ParseObjective(Objective obj, Dictionary<string, object> state = null)
+	private bool ParseObjective(Objective obj, Dictionary<string, object> state = null)
 	{
 		state ??= _simulatedState;
 		return obj switch
@@ -37,7 +37,7 @@ public class Agent
 		};
 	}
 
-	public bool ParseOperatorObjective(OperatorObjective obj, Dictionary<string, object> state = null)
+	private bool ParseOperatorObjective(OperatorObjective obj, Dictionary<string, object> state = null)
 	{
 		state ??= _simulatedState;
 		var allPassed = true;
@@ -69,13 +69,12 @@ public class Agent
 					return false;
 			}
 
-			return allPassed;
+			
 		}
-
-		return false;
+		return allPassed;
 	}
 
-	public bool ParseQueryObjective(QueryObjective obj, Dictionary<string, object> state = null)
+	private bool ParseQueryObjective(QueryObjective obj, Dictionary<string, object> state = null)
 	{
 		state ??= _simulatedState;
 		var found = obj.PropsQuery;
@@ -95,7 +94,7 @@ public class Agent
 		}
 	}
 
-	public bool ParseBoolValueObjective(BoolValueObjective obj, Dictionary<string, object> state = null)
+	private bool ParseBoolValueObjective(BoolValueObjective obj, Dictionary<string, object> state = null)
 	{
 		state ??= _simulatedState;
 		var objValue = obj.Value;

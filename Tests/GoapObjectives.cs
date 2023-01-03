@@ -62,7 +62,7 @@ namespace Tests
         {
             _orc.Carried.Add(_bone);
             _orc.Owned.Add(_bone);
-            var sim = GoapSimulator.SimulateEntity(_orc);
+            var sim = GoapSimulator.SimulateWorldStateFor(_orc);
             var agent = new Agent();
             var goal = new ClaimBone(_orc);
             
@@ -73,7 +73,7 @@ namespace Tests
         public void Test_Incomplete_Goal_Against_Simulated_Creature()
         {
             _orc.Carried.Add(_bone);
-            var sim = GoapSimulator.SimulateEntity(_orc);
+            var sim = GoapSimulator.SimulateWorldStateFor(_orc);
             var agent = new Agent();
             var goal = new ClaimBone(_orc);
             

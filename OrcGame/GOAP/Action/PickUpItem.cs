@@ -1,32 +1,46 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Runtime.InteropServices.JavaScript;
+using MonoGame.Extended.Collections;
+using OrcGame.Entity.Item;
 using OrcGame.GOAP.Core;
 namespace OrcGame.GOAP.Action;
 
 public class PickUpItem : GoapAction
 {
-    public override bool IsValid(Dictionary<string, object> inputState)
+    private BaseItem _item;
+
+    private Dictionary<string, object> FindRelevantConditionInObjective(Objective objective)
+    {
+        if (objective is QueryObjective obj1)
+        {
+            return obj1.PropsQuery.FirstOrDefault(item => item.Keys.Any(key => key == "Creature.Carried"));
+        } else if (objective is OperatorObjective { Operator: not Operator.Not } obj2)
+        {
+            return obj2.ObjectivesList.Select(FindRelevantConditionInObjective).FirstOrDefault();
+        }
+        return null;
+    }
+    
+    // IsValid is run only at the beginning of action planning, and only tests against the current state
+    // of the world. TriggerConditionsMet is where we determine if the action is still doable after a 
+    // change to the simulated state.
+    // public override bool IsValid(Objective goal)
+    // {
+    //     var lookingFor = FindRelevantConditionInObjective(goal);
+    //        
+    //     // Find a suitable item in the world
+    //     var itemManager = ItemManager.GetItemManager();
+    //     _item = itemManager.FindNearestItemWithProps(lookingFor);
+    //
+    //     return _item is not null;
+    // }
+
+    public override bool IsValid(Dictionary<string, object> desiredState)
     {
         
-        if (inputState.ContainsKey("Carried") && inputState["Carried"] is ArrayList { Count: > 0 })
-        {
-            var state = GoapSimulator.CloneState(inputState);
-            var carried = state["Carried"] as ArrayList;
-            // If any item in the list doesn't exist in an available state at validation
-            // time, this will (eventually) return false. We might want to change that later, if we want
-            // creature actions to be able to change item availability.
-            var item = carried![^1];
-            // Find a suitable item in the world
-            
-        }
-
         return true;
     }
-
-    public override bool TriggerConditionsMet(Dictionary<string, object> state)
+    public override bool TriggerConditionsMet(Dictionary<string, object> worldState, Dictionary<string, object> goalState)
     {
         throw new System.NotImplementedException();
     }

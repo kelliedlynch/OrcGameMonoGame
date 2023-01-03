@@ -3,42 +3,16 @@ using System.Collections.Generic;
 using OrcGame.Entity.Creature;
 
 namespace OrcGame.GOAP.Core;
-public abstract class GoapGoal : GoapBase
+public abstract class GoapGoal
 {
-    public abstract Objective GetObjective(Dictionary<string, object> simulatedState);
-}
-
-public abstract class GoapBase
-{
-    
-    
-    protected BaseCreature _creature;
-    public BaseCreature Creature
+    protected GoapGoal(BaseCreature creature)
     {
-        get => _creature;
+        Creature = creature;
     }
 
+    public BaseCreature Creature { get; set; }
+    public abstract Objective GetObjective(Dictionary<string, object> simulatedState);
     public abstract bool IsValid(Dictionary<string, object> state);
     public abstract bool TriggerConditionsMet(Dictionary<string, object> state);
 }
-
-
-//interface IGoap
-//{
-//       Creature Creature
-//       {
-//           get;
-//       }
-
-//       //protected abstract Creature _creature;
-//       //public Creature Creature
-//       //{
-//       //    get => _creature;
-//       //}
-
-//       public abstract bool IsValid();
-//	public abstract bool TriggerConditionsMet();
-	
-//}
-
 
