@@ -21,7 +21,7 @@ public class MathTransform : Transform
     
     public override Dictionary<string, dynamic> Apply(Dictionary<string, dynamic> inputState)
     {
-        var state = GoapSimulator.CloneState(inputState);
+        var state = GoapState.CloneState(inputState);
         // TODO: do more type checking and error handling
         var intConvert = state[Target] is int;
         var stateVal = (float)state[Target];
@@ -67,7 +67,7 @@ public class AddListItemTransform : Transform
     
     public override Dictionary<string, dynamic> Apply(Dictionary<string, dynamic> inputState)
     {
-        var state = GoapSimulator.CloneState(inputState);
+        var state = GoapState.CloneState(inputState);
         var list = state[Target] as Bag<Dictionary<string, dynamic>>;
         Debug.Assert(list != null, nameof(list) + " != null");
         for (var qtyAdded = 0; qtyAdded < Qty; qtyAdded++)

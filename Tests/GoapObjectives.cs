@@ -53,7 +53,7 @@ namespace Tests
             _orc.Owned.Add(_bone);
             _orc.Owned.Add(_stick);
 
-            var sim = GoapSimulator.SimulateEntity(_orc);
+            var sim = GoapState.SimulateEntity(_orc);
             Assert.That(sim, Is.Not.Null);
         }
     }

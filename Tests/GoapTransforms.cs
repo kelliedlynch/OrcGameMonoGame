@@ -59,7 +59,7 @@ namespace Tests
                 Operator = MathOperator.Plus,
                 Value = 2.5f
             };
-            var state = GoapSimulator.SimulateEntity(_orc);
+            var state = GoapState.SimulateEntity(_orc);
             var afterState = transform.Apply(state);
             
             Assert.That(afterState["WorkSpeed"], Is.EqualTo(3.5f));
@@ -78,7 +78,7 @@ namespace Tests
                 },
                 Qty = 2
             };
-            var state = GoapSimulator.SimulateEntity(_orc);
+            var state = GoapState.SimulateEntity(_orc);
             var afterState = transform.Apply(state);
             var tagged = afterState["Tagged"] as Bag<Dictionary<string, object>>;
             

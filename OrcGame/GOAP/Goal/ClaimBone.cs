@@ -24,26 +24,6 @@ public class ClaimBone : GoapGoal
 
         return !hasBone;
     }
-    // public override bool IsValid(Dictionary<string, dynamic> state)
-    // {
-    //     if (!state.ContainsKey("Creature") 
-    //         || !state["Creature"].ContainsKey("Owned")
-    //         || !state["Creature"].ContainsKey("Carried")) return false;
-    //     var ownsBone = false;
-    //     var hasBone = false;
-    //     foreach (var item in (Bag<Dictionary<string, dynamic>>)state["Creature"]["Owned"])
-    //     {
-    //         ownsBone = item.ContainsKey("Material") && item["Material"] == Material.Bone;
-    //         if (ownsBone == true) break;
-    //     }
-    //     foreach (var item in (Bag<Dictionary<string, dynamic>>)state["Creature"]["Carried"])
-    //     {
-    //         hasBone = item.ContainsKey("Material") && item["Material"] == Material.Bone;
-    //         if (hasBone == true) break;
-    //     }
-    //
-    //     return !(ownsBone && hasBone);
-    // }
 
     public override bool TriggerConditionsMet()
     {

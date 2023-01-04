@@ -20,9 +20,14 @@ public class PickUpItem : GoapAction
     }
     
     // IsValid is run only at the beginning of action planning, and only tests against the current state
-    // of the world. TriggerConditionsMet is where we determine if the action is still doable after a 
+    // of the world. IsRelevant is where we determine if the action is still doable after a 
     // change to the simulated state.
-    public override (bool, Dictionary<string, dynamic>) IsValid(Objective objective, Dictionary<string, dynamic> oldState)
+    public override bool IsValid(Objective objective)
+    {
+        return true;
+    }
+
+    public override (bool, Dictionary<string, dynamic>) ApplyTransformIfRelevant(Objective objective, Dictionary<string, dynamic> oldState)
     {
         // Does the objective want an item in Creature.Carried?
         var lookingFor = FindRelevantConditionInObjective(objective);
@@ -35,7 +40,7 @@ public class PickUpItem : GoapAction
         // If matching item found, remove it from the state and return
         if (found == null) return (false, oldState);
         _found = found;
-        var state = GoapSimulator.CloneState(oldState);
+        var state = GoapState.CloneState(oldState);
         return ApplyTransform(state);
     }
 
@@ -46,8 +51,6 @@ public class PickUpItem : GoapAction
 
     public override (bool, Dictionary<string, dynamic>) ApplyTransform(Dictionary<string, dynamic> state)
     {
-        
-        
         // NOTE: is mutating the state necessary? I'm pretty sure since Dictionary is reference typed,
         // it will work without
         if (state["Creature"]["Tagged"] is not Bag<Dictionary<string, dynamic>> newTagged) return (false, state);

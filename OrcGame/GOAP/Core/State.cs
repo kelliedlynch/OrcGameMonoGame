@@ -5,7 +5,7 @@ using OrcGame.Entity.Creature;
 using OrcGame.Entity.Item;
 
 namespace OrcGame.GOAP.Core;
-public static class GoapSimulator
+public static class GoapState
 {
 	private static readonly ItemManager ItemManager = ItemManager.GetItemManager();
 	
@@ -35,6 +35,25 @@ public static class GoapSimulator
                 propValueList.Add(prop.Name, value);
 				continue;
             }
+
+			if (value is not IEnumerable cValue) continue;
+			var collectionValue = new Bag<Dictionary<string, dynamic>>();
+			foreach (var item in cValue)
+			{
+				if (item is not Entity.Entity eItem) continue;
+				collectionValue.Add(SimulateEntity(eItem));
+			}
+			propValueList.Add(prop.Name, collectionValue);
+		}
+		foreach (var prop in entity.GetType().GetProperties())
+		{
+			var value = prop.GetValue(entity);
+
+			if (prop.PropertyType.IsValueType || prop.PropertyType == typeof(string))
+			{
+				propValueList.Add(prop.Name, value);
+				continue;
+			}
 
 			if (value is not IEnumerable cValue) continue;
 			var collectionValue = new Bag<Dictionary<string, dynamic>>();
@@ -82,6 +101,27 @@ public static class GoapSimulator
 		}
 
 		return clone;
+	}
+	
+	public static dynamic ExtractRelevantValueFromState(string target, Dictionary<string, dynamic> state)
+	{
+		dynamic relevantValue = null;
+		var nestedTarget = target.Split(".");
+		var current = state;
+		for (var i=0; i < nestedTarget.Length - 1; i++)
+		{
+			if (current[nestedTarget[i]] is Dictionary<string, dynamic> cur)
+			{
+				current = cur;
+			}
+		}
+
+		if (current[nestedTarget[^1]] is Bag<Dictionary<string, dynamic>> sub)
+		{
+			relevantValue = sub;
+		}
+
+		return relevantValue;
 	}
 }
 

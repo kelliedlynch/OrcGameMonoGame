@@ -22,16 +22,19 @@ public class EntertainSelf : GoapGoal
         };
     }
 
-    public override bool IsValid(Dictionary<string, object> state)
+    public override GoalPriority GetPriority()
+    {
+        return GoalPriority.Idle;
+    }
+
+    public override bool IsValid()
     {
         return true;
     }
 
-    public override bool TriggerConditionsMet(Dictionary<string, object> state)
+    public override bool TriggerConditionsMet()
     {
-        if (state["Creature"] is not Dictionary<string, object> creature) return false;
-        if (creature["IdleState"] is not IdleState cState) return false;
-        return cState == IdleState.Idle;
+        return Creature.IdleState == IdleState.Idle;
     }
 
     public EntertainSelf(BaseCreature creature) : base(creature)

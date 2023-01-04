@@ -18,4 +18,8 @@
       <ProjectReference Include="..\OrcGame\OrcGame.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="GOAP" />
+    </ItemGroup>
+
 </Project>
