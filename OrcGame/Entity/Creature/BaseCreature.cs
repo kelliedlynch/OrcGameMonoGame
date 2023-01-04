@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OrcGame.Entity.Item;
 using MonoGame.Extended.Collections;
+using OrcGame.GOAP.Core;
 
 namespace OrcGame.Entity.Creature;
 public class BaseCreature : Entity
@@ -13,6 +14,8 @@ public class BaseCreature : Entity
 	public float WorkSpeed = 1.0f;
 
 	public IdleState IdleState = IdleState.Idle;
+	public Bag<GoapGoal> Goals = new();
+	public Bag<GoapAction> Actions = new();
 }
 
 public enum CreatureType

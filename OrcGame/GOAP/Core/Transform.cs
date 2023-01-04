@@ -19,7 +19,7 @@ public class MathTransform : Transform
     public MathOperator Operator;
     public float Value;
     
-    public override Dictionary<string, object> Apply(Dictionary<string, object> inputState)
+    public override Dictionary<string, dynamic> Apply(Dictionary<string, dynamic> inputState)
     {
         var state = GoapSimulator.CloneState(inputState);
         // TODO: do more type checking and error handling
@@ -62,13 +62,13 @@ public class AddListItemTransform : Transform
 {
     // Item is a Dictionary of properties that represent the item to be added,
     // and does not necessarily contain all properties, only relevant ones.
-    public Dictionary<string, object> AddItem;
+    public Dictionary<string, dynamic> AddItem;
     public int Qty;
     
-    public override Dictionary<string, object> Apply(Dictionary<string, object> inputState)
+    public override Dictionary<string, dynamic> Apply(Dictionary<string, dynamic> inputState)
     {
         var state = GoapSimulator.CloneState(inputState);
-        var list = state[Target] as Bag<Dictionary<string, object>>;
+        var list = state[Target] as Bag<Dictionary<string, dynamic>>;
         Debug.Assert(list != null, nameof(list) + " != null");
         for (var qtyAdded = 0; qtyAdded < Qty; qtyAdded++)
         {
@@ -80,13 +80,12 @@ public class AddListItemTransform : Transform
 
 public class RemoveListItemTransform : Transform
 {
-    public Dictionary<string, object> RemoveItem;
+    public Dictionary<string, dynamic> RemoveItem;
     public int Qty;
     
-    public override Dictionary<string, object> Apply(Dictionary<string, object> inputState)
+    public override Dictionary<string, dynamic> Apply(Dictionary<string, dynamic> state)
     {
-        var state = GoapSimulator.CloneState(inputState);
-        var list = (Bag<Dictionary<string, object>>)state[Target];
+        var list = (Bag<Dictionary<string, dynamic>>)state[Target];
         var qtyRemoved = 0;
         foreach (var item in list)
         {
@@ -99,9 +98,9 @@ public class RemoveListItemTransform : Transform
             if (qtyRemoved < Qty) continue;
             // is this necessary, or is this all reference type stuff?
             state[Target] = list;
-            return state;
+            break;
         }
-        return inputState;
+        return state;
     }
 }
 

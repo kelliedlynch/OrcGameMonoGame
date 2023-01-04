@@ -56,31 +56,6 @@ namespace Tests
             var sim = GoapSimulator.SimulateEntity(_orc);
             Assert.That(sim, Is.Not.Null);
         }
-
-        [Test]
-        public void Test_Complete_Goal_Against_Simulated_Creature()
-        {
-            _orc.Carried.Add(_bone);
-            _orc.Owned.Add(_bone);
-            var sim = GoapSimulator.SimulateWorldStateFor(_orc);
-            var agent = new Agent();
-            var goal = new ClaimBone(_orc);
-            
-            Assert.That(agent.IsGoalReached(goal, sim), Is.True);
-        }
-
-        [Test]
-        public void Test_Incomplete_Goal_Against_Simulated_Creature()
-        {
-            _orc.Carried.Add(_bone);
-            var sim = GoapSimulator.SimulateWorldStateFor(_orc);
-            var agent = new Agent();
-            var goal = new ClaimBone(_orc);
-            
-            Assert.That(agent.IsGoalReached(goal, sim), Is.False);
-        }
-        
-        
     }
 }
 

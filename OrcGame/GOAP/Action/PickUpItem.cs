@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using MonoGame.Extended.Collections;
-using OrcGame.Entity.Item;
 using OrcGame.GOAP.Core;
 namespace OrcGame.GOAP.Action;
 
@@ -24,19 +22,20 @@ public class PickUpItem : GoapAction
     // IsValid is run only at the beginning of action planning, and only tests against the current state
     // of the world. TriggerConditionsMet is where we determine if the action is still doable after a 
     // change to the simulated state.
-    public override (bool, Dictionary<string, dynamic>) IsValid(Objective objective, Dictionary<string, dynamic> state)
+    public override (bool, Dictionary<string, dynamic>) IsValid(Objective objective, Dictionary<string, dynamic> oldState)
     {
         // Does the objective want an item in Creature.Carried?
         var lookingFor = FindRelevantConditionInObjective(objective);
         // Is there a matching item in Creature.Tagged?
-        var tagged = state["Creature"]["Tagged"] as Bag<Dictionary<string, dynamic>>;
+        var tagged = oldState["Creature"]["Tagged"] as Bag<Dictionary<string, dynamic>>;
         var found =
             (from item in tagged
                 where lookingFor.Keys.All(key => item.ContainsKey(key) && item[key] == lookingFor[key])
                 select item).FirstOrDefault();
         // If matching item found, remove it from the state and return
-        if (found == null) return (false, state);
+        if (found == null) return (false, oldState);
         _found = found;
+        var state = GoapSimulator.CloneState(oldState);
         return ApplyTransform(state);
     }
 
@@ -45,10 +44,13 @@ public class PickUpItem : GoapAction
         throw new System.NotImplementedException();
     }
 
-    public override (bool, Dictionary<string, dynamic>) ApplyTransform(Dictionary<string, dynamic> oldState)
+    public override (bool, Dictionary<string, dynamic>) ApplyTransform(Dictionary<string, dynamic> state)
     {
-        var state = GoapSimulator.CloneState(oldState);
-        if (state["Creature"]["Tagged"] is not Bag<Dictionary<string, dynamic>> newTagged) return (false, oldState);
+        
+        
+        // NOTE: is mutating the state necessary? I'm pretty sure since Dictionary is reference typed,
+        // it will work without
+        if (state["Creature"]["Tagged"] is not Bag<Dictionary<string, dynamic>> newTagged) return (false, state);
         foreach (var entry in newTagged)
         {
             if (_found.Keys.Any(key => _found[key] != entry[key])) continue;

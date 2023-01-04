@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
 using MonoGame.Extended.Collections;
 using OrcGame.Entity.Creature;
@@ -9,28 +8,25 @@ using OrcGame.GOAP.Core;
 namespace OrcGame.GOAP;
 public class Agent
 {
-	private Dictionary<string, dynamic> _simulatedState;
-	public void FindBestGoal(BaseCreature creature)
+	public void FindBestGoal(BaseCreature creature, Dictionary<string, dynamic> state)
 	{
-
-	}
-
-	public void BuildPlan(GoapGoal goal)
-	{
-		_simulatedState = GoapSimulator.SimulateEntity(goal.Creature);
+		GoapGoal highestPriority;
 		
+		foreach (var goal in creature.Goals)
+		{
+			if (!goal.IsValid() || !goal.TriggerConditionsMet()) continue;
+			
+		}
 	}
 
-	public bool IsGoalReached(GoapGoal goal, Dictionary<string, dynamic> state = null)
+	private bool IsGoalReached(GoapGoal goal, Dictionary<string, dynamic> state)
 	{
-		state ??= _simulatedState;
 		var obj = goal.GetObjective();
 		return ParseObjective(obj, state);
 	}
 
-	private bool ParseObjective(Objective obj, Dictionary<string, dynamic> state = null)
+	private bool ParseObjective(Objective obj, Dictionary<string, dynamic> state)
 	{
-		state ??= _simulatedState;
 		return obj switch
 		{
 			QueryObjective objective => ParseQueryObjective(objective, state),
@@ -40,9 +36,8 @@ public class Agent
 		};
 	}
 
-	private bool ParseOperatorObjective(OperatorObjective obj, Dictionary<string, dynamic> state = null)
+	private bool ParseOperatorObjective(OperatorObjective obj, Dictionary<string, dynamic> state)
 	{
-		state ??= _simulatedState;
 		var allPassed = true;
 		foreach (var objective in obj.ObjectivesList)
 		{
@@ -77,9 +72,8 @@ public class Agent
 		return allPassed;
 	}
 
-	private bool ParseQueryObjective(QueryObjective obj, Dictionary<string, dynamic> state = null)
+	private bool ParseQueryObjective(QueryObjective obj, Dictionary<string, dynamic> state)
 	{
-		state ??= _simulatedState;
 		Bag<Dictionary<string, dynamic>> relevant =
 			ExtractRelevantValueFromState(obj.Target, typeof(Bag<Dictionary<string, dynamic>>), state);
 
@@ -123,17 +117,15 @@ public class Agent
 		return (foundItems, remainingInList);
 	}
 
-	private bool ParseValueObjective(ValueObjective obj, Dictionary<string, dynamic> state = null)
+	private bool ParseValueObjective(ValueObjective obj, Dictionary<string, dynamic> state)
 	{
-		state ??= _simulatedState;
 		var objValue = obj.Value;
 		var stateValue = state[obj.Target] is bool && (bool)state[obj.Target];
 		return stateValue == objValue;
 	}
 
-	private dynamic ExtractRelevantValueFromState(string target, Type type, Dictionary<string, dynamic> state = null)
+	private dynamic ExtractRelevantValueFromState(string target, Type type, Dictionary<string, dynamic> state)
 	{
-		state ??= _simulatedState;
 		dynamic relevantValue = null;
 		var nestedTarget = target.Split(".");
 		var current = state;

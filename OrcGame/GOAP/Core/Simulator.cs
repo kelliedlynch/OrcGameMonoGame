@@ -25,11 +25,9 @@ public static class GoapSimulator
 	}
 	public static Dictionary<string, object> SimulateEntity(Entity.Entity entity)
 	{
-		// TODO: something is going wrong in here that's making string fields have a Bag value
 		var propValueList = new Dictionary<string, object>();
 		foreach (var prop in entity.GetType().GetFields())
 		{
-
 			var value = prop.GetValue(entity);
 
 			if (prop.FieldType.IsValueType || prop.FieldType == typeof(string))
