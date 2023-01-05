@@ -24,10 +24,10 @@ public class Agent
 		}
 	}
 
-	private bool IsGoalReached(GoapGoal goal, Dictionary<string, dynamic> state)
-	{
-		var obj = goal.GetObjective();
-		return GoapObjective.EvaluateObjective(obj, state);
-	}
+	// private bool IsGoalReached(GoapGoal goal, Dictionary<string, dynamic> state)
+	// {
+	// 	var obj = goal.GetObjective();
+	// 	return GoapObjective.EvaluateObjective(obj, state);
+	// }
 }
 

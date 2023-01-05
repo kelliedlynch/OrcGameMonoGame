@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using MonoGame.Extended.Collections;
 using OrcGame.Entity.Creature;
 using OrcGame.Entity.Item;
@@ -103,25 +105,40 @@ public static class GoapState
 		return clone;
 	}
 	
-	public static dynamic ExtractRelevantValueFromState(string target, Dictionary<string, dynamic> state)
+	public static dynamic GetValueForKey(string target, Dictionary<string, dynamic> state)
 	{
 		dynamic relevantValue = null;
 		var nestedTarget = target.Split(".");
 		var current = state;
 		for (var i=0; i < nestedTarget.Length - 1; i++)
 		{
-			if (current[nestedTarget[i]] is Dictionary<string, dynamic> cur)
-			{
-				current = cur;
-			}
+			if (current[nestedTarget[i]] is Dictionary<string, dynamic> cur) current = cur;
 		}
 
-		if (current[nestedTarget[^1]] is Bag<Dictionary<string, dynamic>> sub)
-		{
-			relevantValue = sub;
-		}
+		if (current[nestedTarget[^1]] is Bag<Dictionary<string, dynamic>> sub) relevantValue = sub;
 
 		return relevantValue;
+	}
+	
+	public static void SetValueForKey(string target, dynamic value, Dictionary<string, dynamic> state)
+	{
+		var targetAsArray = target.Split(".");
+		var targetRoot = targetAsArray.First();
+		var transformedValue = value;
+		
+		if (targetAsArray.Length > 1)
+		{
+			var targetPrefix = targetAsArray.Skip(1) as string[];
+			var subTarget = targetPrefix!.First();
+			foreach (var element in targetPrefix.Skip(1))
+			{
+				subTarget += "." + element;
+			}
+
+			transformedValue = SetValueForKey(subTarget, value, state[targetRoot]);
+		}
+
+		state[targetRoot] = transformedValue;
 	}
 }
 
