@@ -9,7 +9,7 @@ public class BaseCreature : Entity
 {
 	public CreatureType CreatureType;
 	public CreatureSubtype CreatureSubtype;
-	public Bag<BaseItem> Owned { get; } = new();
+	public List<BaseItem> Owned { get; } = new();
 
 	public void AddToOwned(BaseItem item)
 	{
@@ -22,7 +22,7 @@ public class BaseCreature : Entity
 		if(!Owned.Contains(item)) throw new ArgumentException("Creature does not own that item");
 		Owned.Add(item);
 	}
-	public Bag<BaseItem> Tagged { get; } = new();
+	public List<BaseItem> Tagged { get; } = new();
 	public void AddToTagged(BaseItem item)
 	{
 		if(Tagged.Contains(item)) throw new ArgumentException("Creature already tagged that item");
@@ -33,7 +33,7 @@ public class BaseCreature : Entity
 		if(!Tagged.Contains(item)) throw new ArgumentException("Creature has not tagged that item");
 		Tagged.Add(item);
 	}
-	public Bag<BaseItem> Carried { get; } = new();
+	public List<BaseItem> Carried { get; } = new();
 	public void AddToCarried(BaseItem item)
 	{
 		if(Carried.Contains(item)) throw new ArgumentException("Creature already carries that item");
@@ -47,8 +47,8 @@ public class BaseCreature : Entity
 	public float WorkSpeed = 1.0f;
 
 	public IdleState IdleState = IdleState.Idle;
-	public Bag<GoapGoal> Goals = new();
-	public Bag<GoapAction> Actions = new();
+	public List<GoapGoal> Goals = new();
+	public List<GoapAction> Actions = new();
 }
 
 public enum CreatureType

@@ -9,9 +9,9 @@ namespace OrcGame.Entity.Item;
 public sealed class ItemManager
 {
     private static readonly Lazy<ItemManager> Instance = new Lazy<ItemManager>(() => new ItemManager());
-    public Bag<BaseItem> AvailableItems { get; } = new();
+    public List<BaseItem> AvailableItems { get; } = new();
 
-    public Bag<BaseItem> UnavailableItems { get; } = new();
+    public List<BaseItem> UnavailableItems { get; } = new();
 
     public static ItemManager GetItemManager() { return Instance.Value; }
 

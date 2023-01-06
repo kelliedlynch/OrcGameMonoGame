@@ -68,7 +68,7 @@ public class AddListItemTransform : Transform
     public override Dictionary<string, dynamic> Apply(Dictionary<string, dynamic> inputState)
     {
         var state = GoapState.CloneState(inputState);
-        var list = state[Target] as Bag<Dictionary<string, dynamic>>;
+        var list = state[Target] as List<Dictionary<string, dynamic>>;
         Debug.Assert(list != null, nameof(list) + " != null");
         for (var qtyAdded = 0; qtyAdded < Qty; qtyAdded++)
         {
@@ -85,7 +85,7 @@ public class RemoveListItemTransform : Transform
     
     public override Dictionary<string, dynamic> Apply(Dictionary<string, dynamic> state)
     {
-        var list = (Bag<Dictionary<string, dynamic>>)state[Target];
+        var list = (List<Dictionary<string, dynamic>>)state[Target];
         var qtyRemoved = 0;
         foreach (var item in list)
         {

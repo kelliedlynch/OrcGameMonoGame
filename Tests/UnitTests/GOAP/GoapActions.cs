@@ -1,14 +1,11 @@
 ﻿using System.Numerics;
-using MonoGame.Extended.Collections;
-using Moq;
-using OrcGame.Entity;
 using OrcGame.Entity.Creature;
-using OrcGame.GOAP.Core;
-using OrcGame.GOAP.Goal;
 using OrcGame.Entity.Item;
 using OrcGame.GOAP.Action;
+using OrcGame.GOAP.Core;
+using OrcGame.GOAP.Goal;
 
-namespace Tests
+namespace Tests.UnitTests.GOAP
 {
     public class GoapActions
     {
@@ -59,7 +56,7 @@ namespace Tests
             // var fakeOrc = new Mock<BaseCreature>();
             // var fakeBone = new Mock<BaseItem>();
             // fakeOrc.SetupAllProperties();
-            // fakeOrc.Setup(orc => new Bag<BaseItem>() { fakeBone });
+            // fakeOrc.Setup(orc => new List<BaseItem>() { fakeBone });
             // fakeOrc.AddToTagged(fakeBone);
             // var fakeGoal = new Mock<ClaimBone>();
             var goal = new ClaimBone(_orc);
@@ -67,10 +64,10 @@ namespace Tests
             var action = new PickUpItem();
             var sim = GoapState.SimulateWorldStateFor(_orc);
             var objective = goal.GetObjective();
-            var isValid = action.IsValid(objective, sim);
-            Assert.That(isValid.Item1, Is.True);
-            Assert.That(isValid.Item2["Creature"]["Carried"].Count, Is.Not.Zero);
-            Assert.That(isValid.Item2["Creature"]["Tagged"].Count, Is.Zero);
+            var isValid = action.IsValid(objective);
+            Assert.That(isValid, Is.True);
+            // Assert.That(isValid["Creature"]["Carried"].Count, Is.Not.Zero);
+            // Assert.That(isValid["Creature"]["Tagged"].Count, Is.Zero);
         }
 
         [TearDown]

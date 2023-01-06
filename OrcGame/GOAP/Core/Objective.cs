@@ -17,7 +17,7 @@ namespace OrcGame.GOAP.Core
 		        case OperatorObjective objective:
 			        var (opPassed, remainingObjective, alteredState) =
 				        EvaluateOperatorObjective(objective, state, returnTrueIfAny);
-			        return (opPassed, returnTrueIfAny && !opPassed ? remainingObjective : null, returnTrueIfAny ? alteredState : state);
+			        return (opPassed, !returnTrueIfAny && opPassed ? null : remainingObjective, returnTrueIfAny ? alteredState : state);
 		        case ValueObjective objective:
 			        var valPassed = EvaluateValueObjective(objective, state);
 			        return (valPassed, returnTrueIfAny && !valPassed ? objective : null, state);
@@ -30,18 +30,18 @@ namespace OrcGame.GOAP.Core
         {
         	var allPassed = true;
             var anyPassed = false;
-            var returnObjectives = new Bag<Objective>();
-            var returnState = returnTrueIfAny ? GoapState.CloneState(state) : state;
+            var returnObjectives = new List<Objective>();
+            var returnState = GoapState.CloneState(state);
         	foreach (var objective in obj.ObjectivesList)
         	{
-        		var (passed, returnObj, alteredState) = EvaluateObjective(objective, state);
+        		var (passed, returnObj, alteredState) = EvaluateObjective(objective, state, returnTrueIfAny);
         		switch (obj.Operator)
         		{
         			case Operator.And:
         				if (!passed)
                         {
 	                        if (!returnTrueIfAny) return (false, obj, state);
-	                        returnObjectives.Add(returnObj);
+	                        if (returnObj != null) returnObjectives.Add(returnObj);
 	                        returnState = alteredState;
 	                        continue;
                         }
@@ -56,7 +56,7 @@ namespace OrcGame.GOAP.Core
 	                        continue;
                         } else if (returnTrueIfAny)
                         {
-	                        returnObjectives.Add(returnObj);
+	                        if (returnObj != null) returnObjectives.Add(returnObj);
 	                        returnState = alteredState;
                         }
         				allPassed = false;
@@ -81,7 +81,6 @@ namespace OrcGame.GOAP.Core
             var returnBool = returnTrueIfAny ? anyPassed : allPassed;
             var returnObjective = new OperatorObjective()
             {
-	            Conditional = obj.Conditional,
 	            ObjectivesList = returnObjectives,
 	            Operator = obj.Operator,
 	            Target = obj.Target
@@ -93,7 +92,7 @@ namespace OrcGame.GOAP.Core
 	        QueryObjective obj, Dictionary<string, dynamic> state, bool returnTrueIfAny = false)
         {
 	        var stateCopy = GoapState.CloneState(state);
-        	Bag<Dictionary<string, dynamic>> relevant = GoapState.GetValueForKey(obj.Target, stateCopy);
+        	List<Dictionary<string, dynamic>> relevant = GoapState.GetValueForKey(obj.Target, stateCopy);
 
             var (foundItems, remainingItems) = FindGivenPropertiesInDictList(obj.PropsQuery, obj.Quantity, relevant);
             var qtyFound = foundItems.Count;
@@ -117,7 +116,6 @@ namespace OrcGame.GOAP.Core
 	            {
 		            returnObj = new QueryObjective()
 		            {
-			            Conditional = obj.Conditional,
 			            PropsQuery = obj.PropsQuery,
 			            Quantity = qtyRemaining,
 			            QueryType = obj.QueryType,
@@ -132,16 +130,16 @@ namespace OrcGame.GOAP.Core
         }
             
         // Returns: (items found, remaining items with found items removed)
-        private static (Bag<Dictionary<string, dynamic>>, Bag<Dictionary<string, dynamic>>) FindGivenPropertiesInDictList(
-	        Dictionary<string, dynamic> props, int qtySeeking, Bag<Dictionary<string, dynamic>> list)
+        private static (List<Dictionary<string, dynamic>>, List<Dictionary<string, dynamic>>) FindGivenPropertiesInDictList(
+	        Dictionary<string, dynamic> props, int qtySeeking, List<Dictionary<string, dynamic>> list)
         {
-            var remainingInList = new Bag<Dictionary<string, dynamic>>();
+            var remainingInList = new List<Dictionary<string, dynamic>>();
             // foreach (var item in list)
             // {
 	           //  remainingInList.Add(GoapState.CloneState(item));
             // }
 
-            var foundItems = new Bag<Dictionary<string, dynamic>>();
+            var foundItems = new List<Dictionary<string, dynamic>>();
             foreach (var item in list)
             {
 	            if (qtySeeking > 0 && props.Keys.All(item.ContainsKey))
@@ -209,12 +207,12 @@ namespace OrcGame.GOAP.Core
     public abstract record Objective
     {
         public string Target;
-        public Conditional Conditional;
     }
 
     public record ValueObjective : Objective
     {
         public Type ValueType;
+        public Conditional Conditional;
         public dynamic Value;
     }
 
@@ -228,7 +226,7 @@ namespace OrcGame.GOAP.Core
     public record OperatorObjective : Objective
     {
         public Operator Operator;
-        public Bag<Objective> ObjectivesList;
+        public List<Objective> ObjectivesList;
     }
 
     public enum Operator
