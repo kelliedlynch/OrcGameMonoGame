@@ -3,7 +3,7 @@ using System.Linq;
 using OrcGame.Entity.Creature;
 
 namespace OrcGame.GOAP.Core;
-public abstract class GoapAction 
+public interface IGoapAction 
 {
     // public BaseCreature Creature { get; set; }
 

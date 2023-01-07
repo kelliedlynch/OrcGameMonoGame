@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.Xna.Framework;
 using MonoGame.Extended.Collections;
 using OrcGame.Entity.Creature;
 using OrcGame.Entity.Item;
+using Vector2 = System.Numerics.Vector2;
 
 namespace OrcGame.GOAP.Core;
 public static class GoapState
@@ -15,9 +17,7 @@ public static class GoapState
 	
 	public static Dictionary<string, object> SimulateWorldStateFor(BaseCreature creature)
 	{
-		// var avail = new List<Dictionary<string, object>>(11000);
-		// for (var i = 0; i < 11000; i++) avail[i] = GoapState.SimulateEntity(ItemManager.AvailableItems[i]);
-		var avail = new List<Dictionary<string, object>>(11000);
+		var avail = new HashSet<Dictionary<string, object>>(11000);
 		foreach (var item in ItemManager.AvailableItems)
 		{
 			avail.Add(SimulateEntity(item));
@@ -31,34 +31,6 @@ public static class GoapState
 	}
 	public static Dictionary<string, object> SimulateEntity(Entity.Entity entity)
 	{
-		// var propsAndFields = new List<dynamic>();
-		// var fields = entity.GetType().GetFields();
-		// var props = entity.GetType().GetProperties();
-		// propsAndFields.AddRange(fields);
-		// propsAndFields.AddRange(props);
-		//
-		// var propValList = new Dictionary<string, object>();
-		// foreach (var member in propsAndFields)
-		// {
-		// 	var value = member.GetValue(entity);
-		// 	// NOTE: SKIPPING NULL VALUES MIGHT BREAK STUFF LATER, DO THIS BETTER
-		// 	if (value == null) continue;
-		// 	if (value.GetType().IsValueType || value.GetType() is string)
-		// 	{
-		// 		propValList.Add(member.Name, value);
-		// 		continue;
-		// 	}
-		//
-		// 	if (value is not IEnumerable cValue) continue;
-		// 	var collectionValue = new List<Dictionary<string, dynamic>>();
-		// 	foreach (var item in cValue)
-		// 	{
-		// 		if (item is not Entity.Entity eItem) continue;
-		// 		collectionValue.Add(SimulateEntity(eItem));
-		// 	}
-		// 	propValList.Add(member.Name, collectionValue);
-		// }
-		
 		var propValueList = new Dictionary<string, object>();
 		foreach (var prop in entity.GetType().GetFields())
 		{
@@ -71,7 +43,7 @@ public static class GoapState
             }
   
 			if (value is not IEnumerable cValue) continue;
-			var collectionValue = new List<Dictionary<string, dynamic>>();
+			var collectionValue = new Bag<Dictionary<string, dynamic>>();
 			foreach (var item in cValue)
 			{
 				if (item is not Entity.Entity eItem) continue;
@@ -90,7 +62,7 @@ public static class GoapState
 			}
   
 			if (value is not IEnumerable cValue) continue;
-			var collectionValue = new List<Dictionary<string, dynamic>>();
+			var collectionValue = new Bag<Dictionary<string, dynamic>>();
 			foreach (var item in cValue)
 			{
 				if (item is not Entity.Entity eItem) continue;
@@ -108,9 +80,9 @@ public static class GoapState
 		{
 			switch (item.Value)
 			{
-				case List<Dictionary<string, object>> list:
+				case Bag<Dictionary<string, object>> list:
 				{
-					var cloneList = new List<Dictionary<string, object>>();
+					var cloneList = new Bag<Dictionary<string, object>>();
 					foreach (var arrayItem in list)
 					{
 						cloneList.Add(new Dictionary<string, object>(arrayItem));
@@ -119,7 +91,17 @@ public static class GoapState
 						// 	cloneList.Add(CloneState(arrayItem));
 						// }
 					}
-		
+					clone[item.Key] = cloneList;
+					// clone[item.Key] = list.MemberwiseClone();
+					break;
+				}
+				case HashSet<Dictionary<string, object>> hashSet:
+				{
+					var cloneList = new HashSet<Dictionary<string, object>>();
+					foreach (var setItem in hashSet)
+					{
+						cloneList.Add(new Dictionary<string, object>(setItem));
+					}
 					clone[item.Key] = cloneList;
 					break;
 				}
@@ -148,7 +130,7 @@ public static class GoapState
 			if (current[nestedTarget[i]] is Dictionary<string, dynamic> cur) current = cur;
 		}
 
-		if (current[nestedTarget[^1]] is List<Dictionary<string, dynamic>> sub) relevantValue = sub;
+		if (current[nestedTarget[^1]] is Bag<Dictionary<string, dynamic>> sub) relevantValue = sub;
 
 		return relevantValue;
 	}
@@ -176,3 +158,106 @@ public static class GoapState
 	}
 }
 
+public static class GoapSimulator
+{
+	public static SimulatedState SimulateWorldStateFor(BaseCreature creature)
+	{
+		var state = new SimulatedState();
+	}
+}
+
+public class SimulatedState
+{
+	public SimulatedCreature Creature { get; }
+	public Bag<SimulatedItem> AvailableItems { get; } = new();
+	public HashSet<SimulatedItemGroup> GroupedAvailableItems { get; } = new();
+
+	public SimulatedState(BaseCreature creature)
+	{
+		var itemManager = ItemManager.GetItemManager();
+		Creature = new SimulatedCreature(creature);
+		foreach (var item in itemManager.AvailableItems)
+		{
+			var simItem = new SimulatedItem(item);
+			AvailableItems.Add(simItem);
+
+			var addNewItem = true;
+			foreach (var group in GroupedAvailableItems)
+			{
+				try
+				{
+					group.AddToGroup(simItem);
+					addNewItem = false;
+					break;
+				}
+				catch (NotGroupItemException e) {}
+			}
+			if (addNewItem) GroupedAvailableItems.Add(new SimulatedItemGroup(simItem));
+		}
+	}
+}
+
+public class SimulatedCreature
+{
+	public Vector2 Location;
+	public CreatureType CreatureType;
+	public CreatureSubtype CreatureSubtype;
+	public Bag<SimulatedItemGroup> Owned;
+	public Bag<SimulatedItemGroup> Carried;
+	public Bag<SimulatedItemGroup> Tagged;
+
+	public SimulatedCreature(BaseCreature creature)
+	{
+		foreach (var field in typeof(SimulatedCreature).GetFields())
+		{
+			field.SetValue(this, field.GetValue(creature));
+		}
+	}
+}
+
+
+public class BaseSimulatedItem
+{
+	public Material Material = Material.None;
+}
+public class SimulatedItem : BaseSimulatedItem
+{
+	public Vector2 Location = Vector2.Zero;
+
+	public SimulatedItem(BaseItem item)
+	{
+		Material = item.Material;
+		Location = item.Location;
+	}
+}
+public class SimulatedItemGroup : BaseSimulatedItem
+{
+	public int Quantity;
+	public List<Vector2> Locations = new();
+
+	public SimulatedItemGroup(BaseItem item)
+	{
+		Material = item.Material;
+		Quantity = 1;
+		Locations.Add(item.Location);
+	}
+	public SimulatedItemGroup(SimulatedItem item)
+	{
+		Material = item.Material;
+		Quantity = 1;
+		Locations.Add(item.Location);
+	}
+
+	public void AddToGroup(SimulatedItem item)
+	{
+		var propsToCompare = typeof(BaseSimulatedItem).GetFields();
+		if (propsToCompare.Any(field => field.GetValue(item) != field.GetValue(this))) throw new NotGroupItemException();
+		Quantity++;
+		Locations.Add(item.Location);
+	}
+}
+
+public class NotGroupItemException : Exception
+{
+	
+} 

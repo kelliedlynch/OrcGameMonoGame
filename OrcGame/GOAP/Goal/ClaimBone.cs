@@ -52,7 +52,7 @@ public class ClaimBone : GoapGoal
         var compiledObjective = new OperatorObjective()
         {
             Operator = Operator.And,
-            ObjectivesList = new List<Objective>(){ carriedContainsBone, ownedContainsBone }
+            ObjectivesList = new Bag<Objective>(){ carriedContainsBone, ownedContainsBone }
         };
     
         return compiledObjective;

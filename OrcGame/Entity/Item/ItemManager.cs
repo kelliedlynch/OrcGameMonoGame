@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using MonoGame.Extended.Collections;
 using OrcGame.Entity.Creature;
+using OrcGame.GOAP.Core;
 
 namespace OrcGame.Entity.Item;
 
 public sealed class ItemManager
 {
     private static readonly Lazy<ItemManager> Instance = new Lazy<ItemManager>(() => new ItemManager());
-    public List<BaseItem> AvailableItems { get; } = new();
-
-    public List<BaseItem> UnavailableItems { get; } = new();
+    public HashSet<BaseItem> AvailableItems { get; } = new();
+    public HashSet<SimulatedItem> GroupedAvailableItems;
+    public HashSet<BaseItem> UnavailableItems { get; } = new();
 
     public static ItemManager GetItemManager() { return Instance.Value; }
 

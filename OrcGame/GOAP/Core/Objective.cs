@@ -30,7 +30,7 @@ namespace OrcGame.GOAP.Core
         {
         	var allPassed = true;
             var anyPassed = false;
-            var returnObjectives = new List<Objective>();
+            var returnObjectives = new Bag<Objective>();
             var returnState = GoapState.CloneState(state);
         	foreach (var objective in obj.ObjectivesList)
         	{
@@ -92,7 +92,7 @@ namespace OrcGame.GOAP.Core
 	        QueryObjective obj, Dictionary<string, dynamic> state, bool returnTrueIfAny = false)
         {
 	        var stateCopy = GoapState.CloneState(state);
-        	List<Dictionary<string, dynamic>> relevant = GoapState.GetValueForKey(obj.Target, stateCopy);
+        	Bag<Dictionary<string, dynamic>> relevant = GoapState.GetValueForKey(obj.Target, stateCopy);
 
             var (foundItems, remainingItems) = FindGivenPropertiesInDictList(obj.PropsQuery, obj.Quantity, relevant);
             var qtyFound = foundItems.Count;
@@ -130,16 +130,16 @@ namespace OrcGame.GOAP.Core
         }
             
         // Returns: (items found, remaining items with found items removed)
-        private static (List<Dictionary<string, dynamic>>, List<Dictionary<string, dynamic>>) FindGivenPropertiesInDictList(
-	        Dictionary<string, dynamic> props, int qtySeeking, List<Dictionary<string, dynamic>> list)
+        private static (Bag<Dictionary<string, dynamic>>, Bag<Dictionary<string, dynamic>>) FindGivenPropertiesInDictList(
+	        Dictionary<string, dynamic> props, int qtySeeking, Bag<Dictionary<string, dynamic>> list)
         {
-            var remainingInList = new List<Dictionary<string, dynamic>>();
+            var remainingInList = new Bag<Dictionary<string, dynamic>>();
             // foreach (var item in list)
             // {
 	           //  remainingInList.Add(GoapState.CloneState(item));
             // }
 
-            var foundItems = new List<Dictionary<string, dynamic>>();
+            var foundItems = new Bag<Dictionary<string, dynamic>>();
             foreach (var item in list)
             {
 	            if (qtySeeking > 0 && props.Keys.All(item.ContainsKey))
@@ -226,7 +226,7 @@ namespace OrcGame.GOAP.Core
     public record OperatorObjective : Objective
     {
         public Operator Operator;
-        public List<Objective> ObjectivesList;
+        public Bag<Objective> ObjectivesList;
     }
 
     public enum Operator

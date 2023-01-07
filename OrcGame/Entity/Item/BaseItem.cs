@@ -7,6 +7,7 @@ public class BaseItem : Entity
 }
 public enum Material
 {
+	None,
 	Bone,
 	Wood,
 	Stone

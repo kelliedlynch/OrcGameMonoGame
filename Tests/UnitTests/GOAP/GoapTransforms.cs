@@ -80,7 +80,7 @@ namespace Tests
             };
             var state = GoapState.SimulateEntity(_orc);
             var afterState = transform.Apply(state);
-            var tagged = afterState["Tagged"] as List<Dictionary<string, object>>;
+            var tagged = afterState["Tagged"] as Bag<Dictionary<string, object>>;
             
             Assert.That(tagged.Count, Is.EqualTo(2));
         }

@@ -71,13 +71,14 @@ namespace Tests.PerformanceTests.GOAP
     
     public class TestPlannerWithLargeSets
     {
-        private readonly List<BaseCreature> _orcs = new();
-        // private List<BaseItem> _bones = new();
+        private readonly Bag<BaseCreature> _orcs = new();
+        // private Bag<BaseItem> _bones = new();
         private readonly ItemManager _itemManager = ItemManager.GetItemManager();
 
         [OneTimeSetUp]
         public void MakeTooManyOrcs()
         {
+            var pickUpItem = new PickUpItem();
             for (var i = 0; i < 1000; i++)
             {
                 var orc = new BaseCreature()
@@ -116,22 +117,21 @@ namespace Tests.PerformanceTests.GOAP
                 orc.Owned.Add(bone);
                 var goal = new ClaimBone(orc);
                 orc.Goals.Add(goal);
-                var action = new PickUpItem();
-                orc.Actions.Add(action);
+                // var action = pickUpItem;
+                orc.Actions.Add(pickUpItem);
                 
                 _orcs.Add(orc);
             }
         }
 
         [Test]
-        public void GetPlanForThousandCreatures()
+        public void GetPlanForHundredCreatures()
         {
-            var i = 0;
-            foreach (var orc in _orcs)
+            var hundredOrcs = _orcs.Take(100);
+            foreach (var orc in hundredOrcs)
             {
                 var state = GoapState.SimulateWorldStateFor(orc);
                 var plan = Planner.FindPathToGoal(orc, orc.Goals.FirstOrDefault().GetObjective(), state);
-                if (i++ >= 100) break;
             }
         }
     }

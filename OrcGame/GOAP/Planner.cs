@@ -22,13 +22,13 @@ public class Planner
     }
     // public Path BuildPathForObjective(BaseCreature creature, Objective objective, Dictionary<string, dynamic> state)
     // {
-    //     var branchingPaths = new List<Path>();
+    //     var branchingPaths = new Bag<Path>();
     //     if (objective is OperatorObjective opObj)
     //     {
     //         switch (opObj.Operator)
     //         {
     //             case Operator.And:
-    //                 var branchesA = new List<Path>();
+    //                 var branchesA = new Bag<Path>();
     //                 var stateCopyA = GoapState.CloneState(state);
     //                 foreach (var andObjective in opObj.ObjectivesList)
     //                 {
@@ -47,7 +47,7 @@ public class Planner
     //                     if (branch == null) continue;
     //                     // Otherwise, completing this objective first is valid, and we should try to complete the
     //                     // remaining objectives
-    //                     var remainingObjectives = new List<Objective>();
+    //                     var remainingObjectives = new Bag<Objective>();
     //                     foreach (var o in opObj.ObjectivesList)
     //                     {
     //                         if (o != andObjective) remainingObjectives.Add(o);
@@ -76,7 +76,7 @@ public class Planner
     //                     Branches = branchesA
     //                 };
     //             case Operator.Or:
-    //                 var branchesO = new List<Path>();
+    //                 var branchesO = new Bag<Path>();
     //                 // var stateCopyO = GoapState.CloneState(state);
     //                 foreach (var orObjective in opObj.ObjectivesList)
     //                 {
@@ -122,12 +122,12 @@ public class Planner
     //     }
     // }
 
-    private static List<Path> FindBranchingPaths(BaseCreature creature, Objective objective, Dictionary<string, dynamic> state)
+    private static Bag<Path> FindBranchingPaths(BaseCreature creature, Objective objective, Dictionary<string, dynamic> state)
     {
-        var branches = new List<Path>();        
+        var branches = new Bag<Path>();        
         foreach (var action in creature.Actions)
         {
-            var stateBeforeActions = GoapState.CloneState(state);
+            
             // Can this action even be considered?
             var valid = action.IsValid(objective);
             if (!valid) continue;
@@ -135,6 +135,7 @@ public class Planner
             var relevant = action.IsRelevant(objective);
             if (!relevant) continue;
             // Apply its transform and see if any objectives are met.
+            var stateBeforeActions = GoapState.CloneState(state);
             var stateAfterAction = action.ApplyTransform(stateBeforeActions);
             var (anyObjectivesComplete, remainingObjective, stateAfterObjectivesSatisfied) = 
                 GoapObjective.EvaluateObjective(objective, stateAfterAction, true);
@@ -171,8 +172,8 @@ public class Planner
 
     public class Path
     {
-        public GoapAction Action;
+        public IGoapAction Action;
         public Objective Objective;
-        public List<Path> Branches = new();
+        public Bag<Path> Branches = new();
     }
 }

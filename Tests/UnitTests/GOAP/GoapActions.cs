@@ -56,7 +56,7 @@ namespace Tests.UnitTests.GOAP
             // var fakeOrc = new Mock<BaseCreature>();
             // var fakeBone = new Mock<BaseItem>();
             // fakeOrc.SetupAllProperties();
-            // fakeOrc.Setup(orc => new List<BaseItem>() { fakeBone });
+            // fakeOrc.Setup(orc => new Bag<BaseItem>() { fakeBone });
             // fakeOrc.AddToTagged(fakeBone);
             // var fakeGoal = new Mock<ClaimBone>();
             var goal = new ClaimBone(_orc);
