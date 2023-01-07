@@ -7,10 +7,11 @@ using OrcGame.GOAP.Core;
 namespace OrcGame.Entity.Creature;
 public class BaseCreature : Entity
 {
-	public CreatureType CreatureType;
-	public CreatureSubtype CreatureSubtype;
-	public Bag<BaseItem> Owned { get; } = new();
-
+	public CreatureType CreatureType { get; protected set; } = CreatureType.None;
+	public CreatureSubtype CreatureSubtype { get; protected set; } = CreatureSubtype.None;
+	public HashSet<BaseItem> Owned { get; protected set; } = new();
+	public Bag<BaseItem> Carried { get; protected set; } = new();
+	public Bag<BaseItem> Tagged { get; protected set; } = new();
 	public void AddToOwned(BaseItem item)
 	{
 		if(Owned.Contains(item)) throw new ArgumentException("Creature already owns that item");
@@ -22,7 +23,7 @@ public class BaseCreature : Entity
 		if(!Owned.Contains(item)) throw new ArgumentException("Creature does not own that item");
 		Owned.Add(item);
 	}
-	public Bag<BaseItem> Tagged { get; } = new();
+
 	public void AddToTagged(BaseItem item)
 	{
 		if(Tagged.Contains(item)) throw new ArgumentException("Creature already tagged that item");
@@ -33,7 +34,6 @@ public class BaseCreature : Entity
 		if(!Tagged.Contains(item)) throw new ArgumentException("Creature has not tagged that item");
 		Tagged.Add(item);
 	}
-	public Bag<BaseItem> Carried { get; } = new();
 	public void AddToCarried(BaseItem item)
 	{
 		if(Carried.Contains(item)) throw new ArgumentException("Creature already carries that item");
@@ -44,26 +44,23 @@ public class BaseCreature : Entity
 		if(!Carried.Contains(item)) throw new ArgumentException("Creature is not carrying that item");
 		Carried.Add(item);
 	}
-	public float WorkSpeed = 1.0f;
+	public float WorkSpeed { get; protected set; }= 1.0f;
 
-	public IdleState IdleState = IdleState.Idle;
-	public Bag<GoapGoal> Goals = new();
-	public Bag<IGoapAction> Actions = new();
-}
-
-public struct SimulatedCreature
-{
-	
+	public IdleState IdleState { get; protected set; } = IdleState.Idle;
+	public HashSet<GoapGoal> Goals { get; protected set; } = new();
+	public HashSet<IGoapAction> Actions { get; protected set; } = new();
 }
 
 public enum CreatureType
 {
+	None,
 	Humanoid,
 	Beast
 }
 
 public enum CreatureSubtype
 {
+	None,
 	Orc,
 	Dwarf
 }

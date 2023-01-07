@@ -5,9 +5,9 @@ namespace OrcGame.Entity
 {
 	public class Entity : IPoolable
 	{
-		public Vector2 Location;
-		public string EntityName;
-		public string InstanceName;
+		public Vector2 Location { get; protected set; } = Vector2.Zero;
+		public string EntityName { get; protected set; } = "Generic Entity";
+		public string InstanceName { get; protected set; } = "Generic Entity Instance";
 		
 		private ReturnToPoolDelegate _returnAction;
 

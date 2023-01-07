@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using MonoGame.Extended.Collections;
 using OrcGame.Entity.Item;
 using OrcGame.GOAP.Core;
@@ -21,14 +23,21 @@ public class PickUpItem : IGoapAction
     }
 
 
-    public (bool, Objective, Dictionary<string, dynamic>) TriggerConditionsMet(Objective objective, Dictionary<string, dynamic> currentState)
+    public (bool, Objective) TriggerConditionsMet(Objective objective, SimulatedState currentState)
     {
         Dictionary<string, dynamic> lookingFor = GoapObjective.GetRelevantValueFromObjective("Creature.Carried", objective);
-        if (lookingFor == null) return (false, objective, currentState);
-        HashSet<Dictionary<string, dynamic>> availableItems = GoapState.GetValueForKey("AvailableItems", currentState);
-        var found = 
-            availableItems.FirstOrDefault(item => 
-                lookingFor.Keys.All(key => item.ContainsKey(key) && item[key] == lookingFor[key]));
+        if (lookingFor == null) return (false, objective);
+        SimulatedItem found = null;
+        foreach (var group in currentState.GroupedAvailableItems)
+        {
+            var gType = group.GetType();
+            if (lookingFor.Keys.All(key => gType.GetProperties().Any(propInfo => propInfo.Name == key)) &&
+                lookingFor.Keys.All(key => gType.GetProperty(key)!.GetValue(group) == lookingFor[key]))
+            {
+                found = group.PopItemsFromGroup(1).First();
+                break;
+            }
+        }
 
         if (found == null)
         {
@@ -41,7 +50,7 @@ public class PickUpItem : IGoapAction
                 Quantity = 1,
                 PropsQuery = lookingFor
             };
-            if (objective is OperatorObjective obj && obj.Operator == Operator.And)
+            if (objective is OperatorObjective { Operator: Operator.And } obj)
             {
                 obj.ObjectivesList.Add(availableBone);
                 newObjective = obj;
@@ -51,28 +60,36 @@ public class PickUpItem : IGoapAction
                 newObjective = new OperatorObjective()
                 {
                     Operator = Operator.And,
-                    ObjectivesList = new Bag<Objective>() { objective, availableBone }
+                    ObjectivesList = new HashSet<Objective>() { objective, availableBone }
                 };
             }
 
-            return (false, newObjective, currentState);
+            return (false, newObjective);
         }
         else
         {
-            // If relevant item IS available, this action will "consume" it, so remove it from the state
-            // var stateCopy = GoapState.CloneState(currentState);
-            GoapState.SetValueForKey("AvailableItems", availableItems.Remove(found), currentState);
-            return (true, objective, currentState);
+            return (true, objective);
         }
     }
 
-    public Dictionary<string, dynamic> ApplyTransform(Dictionary<string, dynamic> state)
+    public void ApplyTransform(Objective objective, SimulatedState state)
     {
-        // NOTE: WOULD IT MAKE MORE SENSE FOR THIS TO RETURN AN UPDATED OBJECTIVE?
-        // var stateCopy = GoapState.CloneState(state);
-        Bag<Dictionary<string, dynamic>> currentInventory = GoapState.GetValueForKey("Creature.Carried", state);
-        currentInventory.Add(new Dictionary<string, dynamic>() {{"Material", Material.Bone}});
-        GoapState.SetValueForKey("Creature.Carried", currentInventory, state);
-        return state;
+        Dictionary<string, dynamic> lookingFor = GoapObjective.GetRelevantValueFromObjective("Creature.Carried", objective);
+        if (lookingFor == null) throw new FormatException("No relevant conditions in objective");
+        SimulatedItem found = null;
+        foreach (var group in state.GroupedAvailableItems)
+        {
+            var gType = group.GetType();
+            if (lookingFor.Keys.All(key => gType.GetProperties().Any(propInfo => propInfo.Name == key)) &&
+                lookingFor.Keys.All(key => (dynamic)gType.GetProperty(key)!.GetValue(group) == lookingFor[key]))
+            {
+                found = group.PopItemsFromGroup(1).First();
+                break;
+            }
+        }
+
+        if (found == null)
+            throw new MissingMemberException("No relevant item available in State.GroupedAvailableItems");
+        state.Creature.Carried.Add(new SimulatedItem(found));
     }
 }

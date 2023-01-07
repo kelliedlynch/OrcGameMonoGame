@@ -7,8 +7,8 @@ namespace OrcGame.GOAP.Core
 {
     public static class GoapObjective
     {
-	    // Return value: (bool didPass, Objective objectiveAfterProcessing, Dictionary<string, dynamic> stateAfterProcessing)
-        public static (bool, Objective, Dictionary<string, dynamic>) EvaluateObjective(Objective obj, Dictionary<string, dynamic> state, bool returnTrueIfAny = false)
+	    // Return value: (bool didPass, Objective objectiveAfterProcessing, SimulatedState stateAfterProcessing)
+        public static (bool, Objective, SimulatedState) EvaluateObjective(Objective obj, SimulatedState state, bool returnTrueIfAny = false)
         {
 	        switch (obj)
 	        {
@@ -26,12 +26,12 @@ namespace OrcGame.GOAP.Core
 	        }
         }
     
-        public static (bool, OperatorObjective, Dictionary<string, dynamic>) EvaluateOperatorObjective(OperatorObjective obj, Dictionary<string, dynamic> state, bool returnTrueIfAny = false)
+        public static (bool, OperatorObjective, SimulatedState) EvaluateOperatorObjective(OperatorObjective obj, SimulatedState state, bool returnTrueIfAny = false)
         {
         	var allPassed = true;
             var anyPassed = false;
-            var returnObjectives = new Bag<Objective>();
-            var returnState = GoapState.CloneState(state);
+            var returnObjectives = new HashSet<Objective>();
+            var returnState = new SimulatedState(state);
         	foreach (var objective in obj.ObjectivesList)
         	{
         		var (passed, returnObj, alteredState) = EvaluateObjective(objective, state, returnTrueIfAny);
@@ -79,34 +79,37 @@ namespace OrcGame.GOAP.Core
         	}
             
             var returnBool = returnTrueIfAny ? anyPassed : allPassed;
-            var returnObjective = new OperatorObjective()
-            {
-	            ObjectivesList = returnObjectives,
-	            Operator = obj.Operator,
-	            Target = obj.Target
-            };
+            var returnObjective = obj with { ObjectivesList = returnObjectives };
             return (returnBool, returnObjective, returnState);
         }
     
-        private static (bool, QueryObjective, Dictionary<string, dynamic>) EvaluateQueryObjective(
-	        QueryObjective obj, Dictionary<string, dynamic> state, bool returnTrueIfAny = false)
+        private static (bool, QueryObjective, SimulatedState) EvaluateQueryObjective(
+	        QueryObjective obj, SimulatedState state, bool returnTrueIfAny = false)
         {
-	        var stateCopy = GoapState.CloneState(state);
-        	Bag<Dictionary<string, dynamic>> relevant = GoapState.GetValueForKey(obj.Target, stateCopy);
-
-            var (foundItems, remainingItems) = FindGivenPropertiesInDictList(obj.PropsQuery, obj.Quantity, relevant);
+	        var stateCopy = new SimulatedState(state);
+        	var relevant = state.GetValueForTarget(obj.Target);
+            if (relevant is not HashSet<ISimulated> listToQuery)
+	            throw new ArgumentException("SimulatedState value is not HashSet of ISimulated");
+            var foundItems = FindMembersWithProperties(obj.PropsQuery, listToQuery, obj.Quantity);
             var qtyFound = foundItems.Count;
-            // if (qtyFound == 0) return (false, obj, state);
-            var returnBool = false;
+            if (foundItems.First() is SimulatedItemGroup)
+            {
+	            qtyFound = 0;
+	            foreach (var simulated in foundItems)
+	            {
+		            var item = (SimulatedItemGroup)simulated;
+		            qtyFound += item.Quantity;
+	            }
+            }
 
-            if (obj.QueryType == QueryType.ContainsAtLeast)
-	            returnBool = qtyFound >= obj.Quantity;
-            if (obj.QueryType == QueryType.ContainsLessThan)
-	            returnBool = qtyFound <= obj.Quantity;
-            if (obj.QueryType == QueryType.ContainsExactly)
-	            returnBool = qtyFound == obj.Quantity;
-            if (obj.QueryType == QueryType.DoesNotContain)
-	            returnBool = qtyFound == 0;
+            var returnBool = obj.QueryType switch
+            {
+	            QueryType.ContainsAtLeast => qtyFound >= obj.Quantity,
+	            QueryType.ContainsLessThan => qtyFound <= obj.Quantity,
+	            QueryType.ContainsExactly => qtyFound == obj.Quantity,
+	            QueryType.DoesNotContain => qtyFound == 0,
+	            _ => throw new ArgumentOutOfRangeException()
+            };
 
             QueryObjective returnObj = null; 
             if (returnTrueIfAny)
@@ -114,51 +117,58 @@ namespace OrcGame.GOAP.Core
 	            var qtyRemaining = obj.Quantity - qtyFound;
 	            if (qtyRemaining > 0)
 	            {
-		            returnObj = new QueryObjective()
-		            {
-			            PropsQuery = obj.PropsQuery,
-			            Quantity = qtyRemaining,
-			            QueryType = obj.QueryType,
-			            Target = obj.Target
-		            };
+		            returnObj = obj with { Quantity = qtyRemaining };
 		            
 	            }
-	            GoapState.SetValueForKey(obj.Target, remainingItems, stateCopy);
             }
 	            
             return (returnBool, returnObj, stateCopy);
         }
             
         // Returns: (items found, remaining items with found items removed)
-        private static (Bag<Dictionary<string, dynamic>>, Bag<Dictionary<string, dynamic>>) FindGivenPropertiesInDictList(
-	        Dictionary<string, dynamic> props, int qtySeeking, Bag<Dictionary<string, dynamic>> list)
+        private static Bag<ISimulated> FindMembersWithProperties(
+	        Dictionary<string, dynamic> props, HashSet<ISimulated> list, int qtySeeking = 1)
         {
-            var remainingInList = new Bag<Dictionary<string, dynamic>>();
-            // foreach (var item in list)
-            // {
-	           //  remainingInList.Add(GoapState.CloneState(item));
-            // }
-
-            var foundItems = new Bag<Dictionary<string, dynamic>>();
+            var foundItems = new Bag<ISimulated>();
+            
             foreach (var item in list)
             {
-	            if (qtySeeking > 0 && props.Keys.All(item.ContainsKey))
+	            var iType = item.GetType();
+	            
+	            if (props.Keys.All(key => iType.GetProperties().Any(prop => prop.Name == key )) &&
+	                props.Keys.All(key => iType.GetProperty(key)!.GetValue(item) == props[key]))
 	            {
-		            foundItems.Add(GoapState.CloneState(item));
-		            qtySeeking -= 1;
-	            }
-	            else
-	            {
-		            remainingInList.Add(GoapState.CloneState(item));
+		            if (item is SimulatedItemGroup group)
+		            {
+			            var popped = group.PopGroupFromGroup(qtySeeking);
+			            qtySeeking -= popped.Quantity;
+			            foundItems.Add(popped);
+		            }
+		            else
+		            {
+			            foundItems.Add(item);
+			            qtySeeking -= 1;
+		            }
+
+		            if (qtySeeking <= 0) break;
 	            }
             }
 
-            return (foundItems, remainingInList);
+            return foundItems;
         }
-        public static bool EvaluateValueObjective(ValueObjective obj, Dictionary<string, dynamic> state)
+        public static bool EvaluateValueObjective(ValueObjective obj, SimulatedState state)
         {
             var objValue = obj.Value;
-            var stateValue = GoapState.GetValueForKey(obj.Target, state);
+            object stateValue = null;
+            try
+            {
+	            stateValue = state.GetValueForTarget(obj.Target);
+            }
+            catch (KeyNotFoundException k)
+            {
+	            return false;
+            }
+
             return obj.Conditional switch
             {
                 Conditional.Equals => stateValue == objValue,
@@ -226,7 +236,7 @@ namespace OrcGame.GOAP.Core
     public record OperatorObjective : Objective
     {
         public Operator Operator;
-        public Bag<Objective> ObjectivesList;
+        public HashSet<Objective> ObjectivesList;
     }
 
     public enum Operator

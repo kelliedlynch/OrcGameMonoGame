@@ -1,8 +1,8 @@
 ﻿namespace OrcGame.Entity.Item;
 public class BaseItem : Entity
 {
-	public float Weight;
-	public Material Material;
+	public float Weight { get; protected set; } = 0;
+	public Material Material { get; protected set; } = Material.None;
 
 }
 public enum Material

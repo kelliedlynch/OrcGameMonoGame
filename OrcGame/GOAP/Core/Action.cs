@@ -9,8 +9,8 @@ public interface IGoapAction
 
     public abstract bool IsRelevant(Objective objective);
     public abstract bool IsValid(Objective objective);
-    public abstract Dictionary<string, dynamic> ApplyTransform(Dictionary<string, dynamic> state);
-    public abstract (bool, Objective, Dictionary<string, dynamic>) TriggerConditionsMet(Objective objective, Dictionary<string, object> worldState);
+    public abstract void ApplyTransform(Objective objective, SimulatedState state);
+    public abstract (bool, Objective) TriggerConditionsMet(Objective objective, SimulatedState worldState);
     // public abstract (bool, Dictionary<string, dynamic>) ApplyTransform(Dictionary<string, object> state);
     
 

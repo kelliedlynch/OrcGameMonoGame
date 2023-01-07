@@ -16,15 +16,7 @@ public class CreatureClass
     [Test]
     public void Create_New_Creature()
     {
-        var creature = new BaseCreature()
-        {
-            Location = new Vector2(1, 1),
-            EntityName = "Orc",
-            InstanceName = "Thog",
-            CreatureType = CreatureType.Humanoid,
-            CreatureSubtype = CreatureSubtype.Orc,
-            IdleState = IdleState.Idle
-        };
+        var creature = new Orc();
         Assert.That(creature, Is.Not.Null);
     }
 }

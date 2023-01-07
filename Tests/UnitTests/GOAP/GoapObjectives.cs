@@ -16,44 +16,17 @@ namespace Tests
         [SetUp]
         public void Setup()
         {
-            _orc = new BaseCreature()
-            {
-                Location = new Vector2(1, 1),
-                EntityName = "Orc",
-                InstanceName = "Thog",
-                CreatureType = CreatureType.Humanoid,
-                CreatureSubtype = CreatureSubtype.Orc,
-                IdleState = IdleState.Idle
-            };
-
-            _bone = new BaseItem()
-            {
-                Location = new Vector2(1, 1),
-                EntityName = "Bone",
-                InstanceName = "Big Bone",
-                Weight = 1.2f,
-                Material = Material.Bone
-            };
-
-            _stick = new BaseItem()
-            {
-                Location = new Vector2(1, 1),
-                EntityName = "Stick",
-                InstanceName = "A Stick",
-                Weight = 3.4f,
-                Material = Material.Wood
-            };
-
+            _orc = new Orc();
+            _bone = new Bone();
         }
 
         [Test]
         public void Simulate_Creature_With_Inventory()
         {
-            _orc.Carried.Add(_bone);
-            _orc.Owned.Add(_bone);
-            _orc.Owned.Add(_stick);
+            _orc.AddToCarried(_bone);
+            _orc.AddToOwned(_bone);
 
-            var sim = GoapState.SimulateEntity(_orc);
+            var sim = new SimulatedCreature(_orc);
             Assert.That(sim, Is.Not.Null);
         }
     }
