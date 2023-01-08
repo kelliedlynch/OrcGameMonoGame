@@ -7,24 +7,36 @@ namespace OrcGame.GOAP.Core;
 
 public class SimulatedItem : Simulated
 {
+    public Vector2 Location { get; protected set; } = Vector2.Zero;
+    public string EntityName { get; protected set; } = "Generic Entity";
+    public string InstanceName { get; protected set; } = "Generic Entity Instance";
     public MaterialType Material { get; protected set; } = MaterialType.None;
-    public Vector2 Location { get; private set; }
+    public float Weight { get; protected set; } = 0;
 
     public SimulatedItem(Item item)
     {
         Material = item.Material;
+        Weight = item.Weight;
+        EntityName = item.EntityName;
+        InstanceName = item.InstanceName;
         Location = item.Location;
     }
 	
     public SimulatedItem(SimulatedItem item)
     {
         Material = item.Material;
+        Weight = item.Weight;
+        EntityName = item.EntityName;
+        InstanceName = item.InstanceName;
         Location = item.Location;
     }
 	
     public SimulatedItem(SimulatedItemGroup group)
     {
         Material = group.Material;
+        Weight = group.Weight;
+        EntityName = group.EntityName;
+        InstanceName = group.InstanceName;
         // Location = group.Locations.Last(); 
     }
 

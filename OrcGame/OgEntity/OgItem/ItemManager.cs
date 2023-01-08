@@ -37,23 +37,21 @@ public sealed class ItemManager
     {
         AvailableItems.Add(item);
 
-        if (GroupedAvailableItems.Any())
+        // if (!GroupedAvailableItems.Any())
+        // {
+        //     GroupedAvailableItems.Add(new SimulatedItemGroup(item));
+        //     return;
+        // }
+        var sim = new SimulatedItem(item);
+        foreach (var group in GroupedAvailableItems)
         {
-            var sim = new SimulatedItem(item);
-            foreach (var group in GroupedAvailableItems)
+            if (group.IsGroupMember(sim))
             {
-                try
-                {
-                    group.AddToGroup(sim);
-                    break;
-                }
-                catch (NotGroupItemException) {}
+                group.AddToGroup(sim);
+                return;
             }
         }
-        else
-        {
-            GroupedAvailableItems.Add(new SimulatedItemGroup(item));
-        }
+        GroupedAvailableItems.Add(new SimulatedItemGroup(item));
     }
 
     public void RemoveItemFromWorld(Item item)

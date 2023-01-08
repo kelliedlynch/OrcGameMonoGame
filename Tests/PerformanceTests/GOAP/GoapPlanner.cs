@@ -38,7 +38,8 @@ namespace Tests.PerformanceTests.GOAP
     
     public class TestPlannerWithLargeSets
     {
-        private readonly Bag<Creature> _orcs = new();
+        // private Orc[] _orcs;
+        private HashSet<Orc> _orcs = new();
         // private Bag<BaseItem> _bones = new();
         private readonly ItemManager _itemManager = ItemManager.GetItemManager();
 
