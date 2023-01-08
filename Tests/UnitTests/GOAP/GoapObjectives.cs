@@ -1,17 +1,14 @@
-﻿using System.Numerics;
-using OrcGame.GOAP;
+﻿using OrcGame.OgEntity.OgCreature;
+using OrcGame.OgEntity.OgItem;
 using OrcGame.GOAP.Core;
-using OrcGame.GOAP.Goal;
-using OrcGame.Entity.Creature;
-using OrcGame.Entity.Item;
 
 namespace Tests
 {
     public class GoapAgentAndObjectives
     {
-        private BaseCreature _orc = new BaseCreature();
-        private BaseItem _bone = new BaseItem();
-        private BaseItem _stick = new BaseItem();
+        private Creature _orc = new Creature();
+        private Item _bone = new Item();
+        private Item _stick = new Item();
 
         [SetUp]
         public void Setup()

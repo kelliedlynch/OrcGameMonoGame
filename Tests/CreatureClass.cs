@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-using OrcGame.Entity.Creature;
+using OrcGame.OgEntity.OgCreature;
 
 namespace Tests;
 

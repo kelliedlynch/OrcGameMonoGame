@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MonoGame.Extended.Collections;
+using OrcGame.GOAP.Core;
 
 namespace OrcGame.GOAP.Core
 {
@@ -87,22 +88,36 @@ namespace OrcGame.GOAP.Core
 	        QueryObjective obj, SimulatedState state, bool returnTrueIfAny = false)
         {
 	        var stateCopy = new SimulatedState(state);
-        	var relevant = state.GetValueForTarget(obj.Target);
-            if (relevant is not HashSet<ISimulated> listToQuery)
-	            throw new ArgumentException("SimulatedState value is not HashSet of ISimulated");
-            var foundItems = FindMembersWithProperties(obj.PropsQuery, listToQuery, obj.Quantity);
-            var qtyFound = foundItems.Count;
-            if (foundItems.First() is SimulatedItemGroup)
+        	dynamic relevant = state.GetValueForTarget(obj.Target);
+            switch (relevant)
             {
-	            qtyFound = 0;
-	            foreach (var simulated in foundItems)
+	            case HashSet<SimulatedItem> items:
+		            relevant = items;
+		            break;
+	            case HashSet<SimulatedItemGroup> groups:
+		            relevant = groups;
+		            break;
+	            case HashSet<SimulatedCreature> creatures:
+		            relevant = creatures;
+		            break;
+	            default:
+		            throw new ArgumentException("SimulatedState value is not HashSet of ISimulated");
+            }
+            var foundItems = FindMembersWithProperties(obj.PropsQuery, relevant, obj.Quantity);
+            var qtyFound = 0;
+
+            foreach (var simulated in foundItems)
+            {
+	            if (simulated is not SimulatedItemGroup item)
 	            {
-		            var item = (SimulatedItemGroup)simulated;
-		            qtyFound += item.Quantity;
+		            qtyFound = foundItems.Count;
+		            break;
 	            }
+
+	            qtyFound += item.Quantity;
             }
 
-            var returnBool = obj.QueryType switch
+	        var returnBool = obj.QueryType switch
             {
 	            QueryType.ContainsAtLeast => qtyFound >= obj.Quantity,
 	            QueryType.ContainsLessThan => qtyFound <= obj.Quantity,
@@ -126,17 +141,17 @@ namespace OrcGame.GOAP.Core
         }
             
         // Returns: (items found, remaining items with found items removed)
-        private static Bag<ISimulated> FindMembersWithProperties(
-	        Dictionary<string, dynamic> props, HashSet<ISimulated> list, int qtySeeking = 1)
+        private static HashSet<Simulated> FindMembersWithProperties(
+	        Dictionary<string, dynamic> props, dynamic list, int qtySeeking = 1)
         {
-            var foundItems = new Bag<ISimulated>();
+            var foundItems = new HashSet<Simulated>();
             
-            foreach (var item in list)
+            foreach (Simulated item in list)
             {
 	            var iType = item.GetType();
 	            
 	            if (props.Keys.All(key => iType.GetProperties().Any(prop => prop.Name == key )) &&
-	                props.Keys.All(key => iType.GetProperty(key)!.GetValue(item) == props[key]))
+	                props.Keys.All(key => (dynamic)iType.GetProperty(key)!.GetValue(item) == props[key]))
 	            {
 		            if (item is SimulatedItemGroup group)
 		            {

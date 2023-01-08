@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using OrcGame.Entity.Creature;
+using OrcGame.OgEntity.OgCreature;
+using OrcGame.GOAP.Core;
 
 namespace OrcGame.GOAP.Core;
 public interface IGoapAction 

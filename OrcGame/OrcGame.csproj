@@ -40,10 +40,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\Graphics\" />
-    <Folder Include="Entity\" />
-    <Folder Include="Entity\Built" />
-    <Folder Include="Entity\Creature\" />
-    <Folder Include="Entity\Item\" />
+    <Folder Include="OgEntity\" />
+    <Folder Include="OgEntity\OgBuilt" />
+    <Folder Include="OgEntity\OgCreature\" />
+    <Folder Include="OgEntity\OgItem\" />
     <Folder Include="GOAP\" />
     <Folder Include="GOAP\Goal\" />
     <Folder Include="GOAP\Action\" />

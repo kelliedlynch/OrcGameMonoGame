@@ -1,5 +1,5 @@
 using System.Numerics;
-using OrcGame.Entity.Item;
+using OrcGame.OgEntity.OgItem;
 
 namespace Tests;
 

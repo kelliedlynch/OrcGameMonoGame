@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using OrcGame.Entity.Creature;
+using OrcGame.OgEntity.OgCreature;
 
 namespace OrcGame.GOAP.Core;
 public abstract class GoapGoal
 {
-    protected GoapGoal(BaseCreature c)
+    protected GoapGoal(Creature c)
     {
         Creature = c;
     }
 
-    public BaseCreature Creature { get; set; }
+    public Creature Creature { get; set; }
     public abstract Objective GetObjective();
     public abstract bool IsValid();
     public abstract bool TriggerConditionsMet();

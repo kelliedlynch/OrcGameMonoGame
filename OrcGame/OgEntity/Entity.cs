@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using MonoGame.Extended.Collections;
 
-namespace OrcGame.Entity
+namespace OrcGame.OgEntity
 {
 	public class Entity : IPoolable
 	{

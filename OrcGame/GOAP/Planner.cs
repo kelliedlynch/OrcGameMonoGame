@@ -1,17 +1,16 @@
 using System.Collections.Generic;
 using System.Linq;
-using OrcGame.Entity.Creature;
+using OrcGame.OgEntity.OgCreature;
+using OrcGame.GOAP.Core;
 using OrcGame.GOAP.Core;
 
 namespace OrcGame.GOAP;
 
-public class Planner
+public static class Planner
 {
-    public static Path FindPathToGoal(BaseCreature creature, Objective objective, SimulatedState state)
+    public static Branch FindPathToGoal(Creature creature, Objective objective, SimulatedState state)
     {
-        // ENTRY POINT
-        // Build step one (actually final step) of the path
-        var path = new Path()
+        var path = new Branch()
         {
             Action = null,
             Objective = objective,
@@ -20,9 +19,9 @@ public class Planner
         return path;
     }
  
-    private static HashSet<Path> FindBranchingPaths(BaseCreature creature, Objective objective, SimulatedState state)
+    private static HashSet<Branch> FindBranchingPaths(Creature creature, Objective objective, SimulatedState state)
     {
-        var branches = new HashSet<Path>();        
+        var branches = new HashSet<Branch>();        
         foreach (var action in creature.Actions)
         {
             
@@ -44,9 +43,9 @@ public class Planner
             var (_, objectiveWithTriggersAdded) = action.TriggerConditionsMet(remainingObjective, stateAfterObjectivesSatisfied);
             // Now we see if all objectives are satisfied after this action
             // NOTE: THIS FEELS A LITTLE SUPERFLUOUS. THERE IS PROBABLY A LESS RESOURCE-INTENSIVE CHECK WE CAN DO
-            var (allObjectivesSatisfied, objectivesStillRemaining, stateThatHasProbablyNotChanged) =
+            var (allObjectivesSatisfied, objectivesStillRemaining, stateAfterTriggersMet) =
                 GoapObjective.EvaluateObjective(objectiveWithTriggersAdded, stateCopy);
-            var thisBranch = new Path()
+            var thisBranch = new Branch()
             {
                 Action = action,
                 Objective = remainingObjective,
@@ -59,7 +58,7 @@ public class Planner
                 continue;
             }
             // Otherwise, we need to find this path's branching paths
-            var newBranches = FindBranchingPaths(creature, objectivesStillRemaining, stateThatHasProbablyNotChanged);
+            var newBranches = FindBranchingPaths(creature, objectivesStillRemaining, stateAfterTriggersMet);
             if (!newBranches.Any()) continue;
             thisBranch.Branches = newBranches;
             branches.Add(thisBranch);
@@ -68,10 +67,10 @@ public class Planner
         return branches;
     }
 
-    public class Path
+    public class Branch
     {
         public IGoapAction Action;
         public Objective Objective;
-        public HashSet<Path> Branches = new();
+        public HashSet<Branch> Branches = new();
     }
 }

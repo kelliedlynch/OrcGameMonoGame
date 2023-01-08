@@ -1,10 +1,11 @@
 using System.Numerics;
 using MonoGame.Extended.Collections;
-using OrcGame.Entity;
-using OrcGame.Entity.Creature;
-using OrcGame.Entity.Item;
+using OrcGame.OgEntity;
+using OrcGame.OgEntity.OgCreature;
+using OrcGame.OgEntity.OgItem;
 using OrcGame.GOAP;
 using OrcGame.GOAP.Action;
+using OrcGame.GOAP.Core;
 using OrcGame.GOAP.Core;
 using OrcGame.GOAP.Goal;
 
@@ -13,8 +14,8 @@ namespace Tests.PerformanceTests.GOAP
 {
     public class TestPlannerWithSmallSets
     {
-        private BaseCreature _orc = null!;
-        private BaseItem _bone = null!;
+        private Creature _orc = null!;
+        private Item _bone = null!;
         private readonly ItemManager _itemManager = ItemManager.GetItemManager();
 
         [SetUp]
@@ -37,7 +38,7 @@ namespace Tests.PerformanceTests.GOAP
     
     public class TestPlannerWithLargeSets
     {
-        private readonly Bag<BaseCreature> _orcs = new();
+        private readonly Bag<Creature> _orcs = new();
         // private Bag<BaseItem> _bones = new();
         private readonly ItemManager _itemManager = ItemManager.GetItemManager();
 
@@ -50,13 +51,17 @@ namespace Tests.PerformanceTests.GOAP
                 var bone = new Bone();
                 _itemManager.AddItemToWorld(bone);
 
-                for (var j = 0; j < 10; j++)
+                for (var j = 0; j < 3; j++)
                 {
                     var anotherBone = new Bone();
                     _itemManager.AddItemToWorld(anotherBone);
+                    var stick1 = new Stick();
+                    _itemManager.AddItemToWorld(stick1);
+                    var stick2 = new Stick();
+                    _itemManager.AddItemToWorld(stick2);
                 }
 
-                orc.AddToCarried(bone);
+                orc.AddToOwned(bone);
                 
                 _orcs.Add(orc);
             }
@@ -66,11 +71,14 @@ namespace Tests.PerformanceTests.GOAP
         public void GetPlanForHundredCreatures()
         {
             var hundredOrcs = _orcs.Take(100);
+            // var plans = new HashSet<Planner.Branch>();
             foreach (var orc in hundredOrcs)
             {
                 var state = new SimulatedState(orc);
                 var plan = Planner.FindPathToGoal(orc, orc.Goals.FirstOrDefault()!.GetObjective(), state);
+                // plans.Add(plan);
             }
+            // Assert.That(plans, Is.Not.Empty);
         }
     }
 }

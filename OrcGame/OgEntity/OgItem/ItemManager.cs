@@ -2,21 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MonoGame.Extended.Collections;
-using OrcGame.Entity.Creature;
+using OrcGame.OgEntity.OgCreature;
+using OrcGame.GOAP.Core;
 using OrcGame.GOAP.Core;
 
-namespace OrcGame.Entity.Item;
+namespace OrcGame.OgEntity.OgItem;
 
 public sealed class ItemManager
 {
     private static readonly Lazy<ItemManager> Instance = new Lazy<ItemManager>(() => new ItemManager());
-    public HashSet<BaseItem> AvailableItems { get; } = new();
-    public HashSet<SimulatedItem> GroupedAvailableItems;
-    public HashSet<BaseItem> UnavailableItems { get; } = new();
+    public HashSet<Item> AvailableItems { get; } = new();
+    public HashSet<SimulatedItemGroup> GroupedAvailableItems { get; private set; } = new();
+    public HashSet<Item> UnavailableItems { get; } = new();
 
     public static ItemManager GetItemManager() { return Instance.Value; }
 
-    public BaseItem FindNearestItemWithProps(Dictionary<string, object> props)
+    public Item FindNearestItemWithProps(Dictionary<string, object> props)
     {
         // TODO: Make this actually find the nearest item, instead of a random one
         foreach (var item in AvailableItems)
@@ -32,12 +33,30 @@ public sealed class ItemManager
         return null;
     }
 
-    public void AddItemToWorld(BaseItem item)
+    public void AddItemToWorld(Item item)
     {
         AvailableItems.Add(item);
+
+        if (GroupedAvailableItems.Any())
+        {
+            var sim = new SimulatedItem(item);
+            foreach (var group in GroupedAvailableItems)
+            {
+                try
+                {
+                    group.AddToGroup(sim);
+                    break;
+                }
+                catch (NotGroupItemException) {}
+            }
+        }
+        else
+        {
+            GroupedAvailableItems.Add(new SimulatedItemGroup(item));
+        }
     }
 
-    public void RemoveItemFromWorld(BaseItem item)
+    public void RemoveItemFromWorld(Item item)
     {
         if (AvailableItems.Contains(item))
         {

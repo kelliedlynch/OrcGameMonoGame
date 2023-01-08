@@ -1,12 +1,11 @@
 using System.Collections.Generic;
-using System.Numerics;
 using OrcGame.GOAP.Action;
 using OrcGame.GOAP.Core;
 using OrcGame.GOAP.Goal;
 
-namespace OrcGame.Entity.Creature;
+namespace OrcGame.OgEntity.OgCreature;
 
-public class Orc : BaseCreature
+public class Orc : Creature
 {
     public Orc()
     {

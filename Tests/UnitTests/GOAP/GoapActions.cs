@@ -1,7 +1,8 @@
 ﻿using System.Numerics;
-using OrcGame.Entity.Creature;
-using OrcGame.Entity.Item;
+using OrcGame.OgEntity.OgCreature;
+using OrcGame.OgEntity.OgItem;
 using OrcGame.GOAP.Action;
+using OrcGame.GOAP.Core;
 using OrcGame.GOAP.Core;
 using OrcGame.GOAP.Goal;
 
@@ -9,9 +10,9 @@ namespace Tests.UnitTests.GOAP
 {
     public class GoapActions
     {
-        private BaseCreature _orc = null!;
-        private BaseItem _bone = null!;
-        private BaseItem _stick = null!;
+        private Creature _orc = null!;
+        private Item _bone = null!;
+        private Item _stick = null!;
         private readonly ItemManager _itemManager = ItemManager.GetItemManager();
         
         [SetUp]

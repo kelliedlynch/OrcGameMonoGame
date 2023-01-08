@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using OrcGame.Entity.Creature;
+using OrcGame.OgEntity.OgCreature;
 using OrcGame.GOAP.Core;
 
 namespace OrcGame.GOAP.Goal;
@@ -37,7 +37,7 @@ public class EntertainSelf : GoapGoal
         return Creature.IdleState == IdleState.Idle;
     }
 
-    public EntertainSelf(BaseCreature creature) : base(creature)
+    public EntertainSelf(Creature creature) : base(creature)
     {
     }
 }
