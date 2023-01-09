@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using MonoGame.Extended.Collections;
 using OrcGame.OgEntity.OgCreature;
 using OrcGame.OgEntity.OgItem;
 using OrcGame.GOAP.Core;

@@ -71,12 +71,16 @@ namespace Tests.PerformanceTests.GOAP
         [Test]
         public void GetPlanForHundredCreatures()
         {
-            var hundredOrcs = _orcs.Take(100);
+            // var hundredOrcs = _orcs.Take(100);
             // var plans = new HashSet<Planner.Branch>();
-            foreach (var orc in hundredOrcs)
+            foreach (var orc in _orcs)
             {
-                var state = new SimulatedState(orc);
+                // var state = new SimulatedState(orc);
+                var state = Planner.StatePool.Request();
+                state.InitState(orc);
                 var plan = Planner.FindPathToGoal(orc, orc.Goals.FirstOrDefault()!.GetObjective(), state);
+                Planner.StatePool.Dispose(state);
+                Planner.BranchPool.Dispose(plan);
                 // plans.Add(plan);
             }
             // Assert.That(plans, Is.Not.Empty);

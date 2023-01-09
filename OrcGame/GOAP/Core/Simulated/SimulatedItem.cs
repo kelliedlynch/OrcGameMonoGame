@@ -13,6 +13,19 @@ public class SimulatedItem : Simulated
     public MaterialType Material { get; protected set; } = MaterialType.None;
     public float Weight { get; protected set; } = 0;
 
+    public SimulatedItem()
+    {
+        
+    }
+
+    public void InitItem(Item item)
+    {
+        Material = item.Material;
+        Weight = item.Weight;
+        EntityName = item.EntityName;
+        InstanceName = item.InstanceName;
+        Location = item.Location;
+    }
     public SimulatedItem(Item item)
     {
         Material = item.Material;
@@ -50,4 +63,8 @@ public class SimulatedItem : Simulated
         }
     }
 
+    public override void Reset()
+    {
+        
+    }
 }

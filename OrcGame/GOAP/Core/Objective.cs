@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MonoGame.Extended.Collections;
-using OrcGame.GOAP.Core;
+using OrcGame.Utility;
 
 namespace OrcGame.GOAP.Core
 {
     public static class GoapObjective
     {
+	    
 	    // Return value: (bool didPass, Objective objectiveAfterProcessing, SimulatedState stateAfterProcessing)
         public static (bool, Objective, SimulatedState) EvaluateObjective(Objective obj, SimulatedState state, bool returnTrueIfAny = false)
         {
@@ -229,9 +229,10 @@ namespace OrcGame.GOAP.Core
         }
     }
     
-    public abstract record Objective
+    public abstract record Objective : IPoolable
     {
         public string Target;
+        public abstract void Reset();
     }
 
     public record ValueObjective : Objective
@@ -239,6 +240,10 @@ namespace OrcGame.GOAP.Core
         public Type ValueType;
         public Conditional Conditional;
         public dynamic Value;
+        public override void Reset()
+        {
+	        
+        }
     }
 
     public record QueryObjective : Objective
@@ -246,12 +251,23 @@ namespace OrcGame.GOAP.Core
         public QueryType QueryType;
         public int Quantity;
         public Dictionary<string, object> PropsQuery;
+        public override void Reset()
+        {
+        }
     }
 
     public record OperatorObjective : Objective
     {
         public Operator Operator;
         public HashSet<Objective> ObjectivesList;
+
+        public override void Reset()
+        {
+	        foreach (var obj in ObjectivesList)
+	        {
+		        
+	        }
+        }
     }
 
     public enum Operator

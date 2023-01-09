@@ -1,15 +1,16 @@
 ﻿using System;
-using System.Linq;
-using MonoGame.Extended.Collections;
+using OrcGame.Utility;
+// using System.Linq;
+// using MonoGame.Extended.Collections;
 
 namespace OrcGame.GOAP.Core;
 
-public class Simulated
+public abstract class Simulated : IPoolable
 {
-
+	public abstract void Reset();
 }
 
-public class SimulatedGroup : Simulated
+public abstract class SimulatedGroup : Simulated
 {
 
 	

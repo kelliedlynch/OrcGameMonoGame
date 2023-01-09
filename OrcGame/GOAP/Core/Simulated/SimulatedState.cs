@@ -3,15 +3,33 @@ using System.Collections.Generic;
 using System.Linq;
 using OrcGame.OgEntity.OgCreature;
 using OrcGame.OgEntity.OgItem;
+using OrcGame.Utility;
 
 namespace OrcGame.GOAP.Core;
 
 public class SimulatedState : Simulated
 {
-    public SimulatedCreature Creature { get; }
-    public HashSet<SimulatedItemGroup> GroupedAvailableItems { get; } = new();
+    public SimulatedCreature Creature { get; private set;  }
+    public HashSet<SimulatedItemGroup> GroupedAvailableItems { get; private set; } = new();
 
+    public SimulatedState()
+    {
+        
+    }
     public SimulatedState(Creature creature)
+    {
+        var itemManager = ItemManager.GetItemManager();
+        // Creature = new SimulatedCreature(creature);
+        Creature = Planner.CreaturePool.Request();
+        Creature.InitCreature(creature);
+
+        foreach (SimulatedItemGroup group in itemManager.GroupedAvailableItems)
+        {
+            GroupedAvailableItems.Add(new SimulatedItemGroup(group));
+        }
+    }
+
+    public void InitState(Creature creature)
     {
         var itemManager = ItemManager.GetItemManager();
         Creature = new SimulatedCreature(creature);
@@ -20,6 +38,18 @@ public class SimulatedState : Simulated
         {
             GroupedAvailableItems.Add(new SimulatedItemGroup(group));
         }
+    }
+
+    public override void Reset()
+    {
+        Planner.CreaturePool.Dispose(Creature);
+        foreach (var item in GroupedAvailableItems)
+        {
+            // item.Reset();
+            Planner.GroupPool.Dispose(item);
+        }
+        
+        GroupedAvailableItems.Clear();
     }
 	
     public SimulatedState(SimulatedState state)

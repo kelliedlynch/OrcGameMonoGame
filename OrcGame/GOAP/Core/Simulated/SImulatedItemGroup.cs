@@ -15,19 +15,31 @@ public class SimulatedItemGroup : SimulatedGroup
     public float Weight { get; protected set; } = 0;
     // public List<Vector2> Locations { get; private set; }= new();
 
+    public SimulatedItemGroup()
+    {
+        
+    }
+
+    public void InitGroup(dynamic item)
+    {
+        Material = item.Material;
+        Weight = item.Weight;
+        EntityName = item.EntityName;
+        InstanceName = item.InstanceName;
+    }
     public SimulatedItemGroup(Item item)
     {
         Material = item.Material;
         Weight = item.Weight;
         EntityName = item.EntityName;
         InstanceName = item.InstanceName;
-        // Locations.Add(item.Location);
     }
     public SimulatedItemGroup(SimulatedItem item)
     {
         Material = item.Material;
-        // Locations.Add(item.Location);
-    }
+        Weight = item.Weight;
+        EntityName = item.EntityName;
+        InstanceName = item.InstanceName;   }
 	
     public SimulatedItemGroup(SimulatedItemGroup group)
     {
@@ -84,5 +96,10 @@ public class SimulatedItemGroup : SimulatedGroup
         // if (!IsGroupMember(item)) throw new NotGroupItemException();
         Quantity--;
         // Locations.Remove(item.Location);
+    }
+
+    public override void Reset()
+    {
+        
     }
 }
