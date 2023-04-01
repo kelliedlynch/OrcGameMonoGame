@@ -1,26 +1,35 @@
 ﻿using System;
-using System.Collections.Generic;
 using OrcGame.OgEntity.OgCreature;
 using OrcGame.GOAP.Core;
 
 namespace OrcGame.GOAP;
 public class Agent
 {
-	public void FindBestGoal(Creature creature, Dictionary<string, dynamic> state)
+	public void FindBestGoal(Creature creature)
 	{
-		GoapGoal highestPriority = null;
-		
+		var emergenciesOnly = (creature.IdleState != IdleState.Idle && creature.CurrentPlan != null);
+		GoapGoal highestPriorityGoal = null;
+		var highestPriority = GoapGoal.GoalPriority.Idle;
 		foreach (var goal in creature.Goals)
 		{
+			var thisPriority = goal.GetPriority();
+			if (emergenciesOnly && thisPriority < GoapGoal.GoalPriority.Emergency) continue;
 			if (!goal.IsValid() || !goal.TriggerConditionsMet()) continue;
-			// ReSharper disable once ConditionIsAlwaysTrueOrFalse
-			if (highestPriority == null || highestPriority.GetPriority() < goal.GetPriority())
+			if (highestPriorityGoal == null || highestPriority < thisPriority)
 			{
-				highestPriority = goal;
+				highestPriority = thisPriority;
+				highestPriorityGoal = goal;
 			}
 		}
+
+		if (highestPriorityGoal == null) throw new AgentFailureException("Agent failed to find a valid goal");
+		creature.CurrentGoal = highestPriorityGoal;
+		var plan = Planner.FindPathToGoal(creature, highestPriorityGoal.GetObjective());
+		var cheapestPlan = Planner.FindCheapestPlan(plan);
 	}
 
+	
+	
 	// private bool IsGoalReached(GoapGoal goal, Dictionary<string, dynamic> state)
 	// {
 	// 	var obj = goal.GetObjective();
@@ -28,3 +37,9 @@ public class Agent
 	// }
 }
 
+public class AgentFailureException : Exception
+{
+	public AgentFailureException(string message) : base(message)
+	{
+	}
+}

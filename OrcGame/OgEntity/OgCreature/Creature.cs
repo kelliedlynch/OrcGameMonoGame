@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using OrcGame.GOAP;
 using OrcGame.OgEntity.OgItem;
 using OrcGame.GOAP.Core;
 
@@ -48,6 +49,8 @@ public class Creature : Entity
 	public IdleState IdleState { get; protected set; } = IdleState.Idle;
 	public HashSet<GoapGoal> Goals { get; protected set; } = new();
 	public HashSet<IGoapAction> Actions { get; protected set; } = new();
+	public GoapGoal CurrentGoal { get; set; }
+	public Branch CurrentPlan { get; set; }
 }
 
 public enum CreatureType

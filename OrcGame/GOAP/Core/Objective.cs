@@ -18,7 +18,30 @@ namespace OrcGame.GOAP.Core
 		        case OperatorObjective objective:
 			        var (opPassed, remainingObjective, alteredState) =
 				        EvaluateOperatorObjective(objective, state, returnTrueIfAny);
-			        return (opPassed, !returnTrueIfAny && opPassed ? null : remainingObjective, returnTrueIfAny ? alteredState : state);
+			        Objective returnObjective;
+			        SimulatedState returnState;
+			        if (!returnTrueIfAny && opPassed)
+			        {
+				        remainingObjective.Dispose();
+				        returnObjective = null;
+			        }
+			        else
+			        {
+				        returnObjective = remainingObjective;
+			        }
+
+			        if (returnTrueIfAny)
+			        {
+				        // Planner.StatePool.Dispose(state);
+				        returnState = alteredState;
+			        }
+			        else
+			        {
+				        Planner.StatePool.Dispose(alteredState);
+				        returnState = state;
+			        }
+			        
+			        return (opPassed, returnObjective, returnState);
 		        case ValueObjective objective:
 			        var valPassed = EvaluateValueObjective(objective, state);
 			        return (valPassed, returnTrueIfAny && !valPassed ? objective : null, state);
@@ -32,7 +55,8 @@ namespace OrcGame.GOAP.Core
         	var allPassed = true;
             var anyPassed = false;
             var returnObjectives = new HashSet<Objective>();
-            var returnState = new SimulatedState(state);
+            var returnState = Planner.StatePool.Request();
+            // returnState.CopyPropertiesOf(state);
         	foreach (var objective in obj.ObjectivesList)
         	{
         		var (passed, returnObj, alteredState) = EvaluateObjective(objective, state, returnTrueIfAny);
@@ -43,7 +67,10 @@ namespace OrcGame.GOAP.Core
                         {
 	                        if (!returnTrueIfAny) return (false, obj, state);
 	                        if (returnObj != null) returnObjectives.Add(returnObj);
-	                        returnState = alteredState;
+	                        // Planner.StatePool.Dispose(returnState);
+	                        // returnState = alteredState;
+	                        returnState.CopyPropertiesOf(alteredState);
+	                        Planner.StatePool.Dispose(alteredState);
 	                        continue;
                         }
 
@@ -58,7 +85,9 @@ namespace OrcGame.GOAP.Core
                         } else if (returnTrueIfAny)
                         {
 	                        if (returnObj != null) returnObjectives.Add(returnObj);
-	                        returnState = alteredState;
+	                        returnState.CopyPropertiesOf(alteredState);
+	                        Planner.StatePool.Dispose(alteredState);
+	                        // returnState = alteredState;
                         }
         				allPassed = false;
         				break;
@@ -81,13 +110,15 @@ namespace OrcGame.GOAP.Core
             
             var returnBool = returnTrueIfAny ? anyPassed : allPassed;
             var returnObjective = obj with { ObjectivesList = returnObjectives };
+            obj.Dispose();
             return (returnBool, returnObjective, returnState);
         }
     
         private static (bool, QueryObjective, SimulatedState) EvaluateQueryObjective(
 	        QueryObjective obj, SimulatedState state, bool returnTrueIfAny = false)
         {
-	        var stateCopy = new SimulatedState(state);
+	        var stateCopy = Planner.StatePool.Request();
+	        stateCopy.CopyPropertiesOf(state);
         	dynamic relevant = state.GetValueForTarget(obj.Target);
             switch (relevant)
             {
@@ -233,6 +264,7 @@ namespace OrcGame.GOAP.Core
     {
         public string Target;
         public abstract void Reset();
+        public abstract void Dispose();
     }
 
     public record ValueObjective : Objective
@@ -244,6 +276,11 @@ namespace OrcGame.GOAP.Core
         {
 	        
         }
+
+        public override void Dispose()
+        {
+	        Planner.ValObjPool.Dispose(this);
+        }
     }
 
     public record QueryObjective : Objective
@@ -253,6 +290,10 @@ namespace OrcGame.GOAP.Core
         public Dictionary<string, object> PropsQuery;
         public override void Reset()
         {
+        }
+        public override void Dispose()
+        {
+	        Planner.QuObjPool.Dispose(this);
         }
     }
 
@@ -267,6 +308,10 @@ namespace OrcGame.GOAP.Core
 	        {
 		        
 	        }
+        }
+        public override void Dispose()
+        {
+	        Planner.OpObjPool.Dispose(this);
         }
     }
 

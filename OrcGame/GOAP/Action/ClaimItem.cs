@@ -5,7 +5,7 @@ using OrcGame.GOAP.Core;
 
 namespace OrcGame.GOAP.Action;
 
-public class PickUpItem : IGoapAction
+public class ClaimItem : IGoapAction
 {
     // IsValid is run only at the beginning of action planning, and only tests against the current state
     // of the world. IsRelevant is where we determine if the action is still doable after a 
@@ -22,13 +22,13 @@ public class PickUpItem : IGoapAction
 
     public bool IsRelevant(Objective objective)
     {
-        return GoapObjective.ObjectiveContainsRelevantCondition("Creature.Carried", objective);
+        return GoapObjective.ObjectiveContainsRelevantCondition("Creature.Owned", objective);
     }
 
 
     public (bool, Objective) TriggerConditionsMet(Objective objective, SimulatedState currentState)
     {
-        Dictionary<string, dynamic> lookingFor = GoapObjective.GetRelevantValueFromObjective("Creature.Carried", objective);
+        Dictionary<string, dynamic> lookingFor = GoapObjective.GetRelevantValueFromObjective("Creature.Owned", objective);
         if (lookingFor == null) return (false, objective);
         SimulatedItem found = null;
         foreach (var group in currentState.GroupedAvailableItems)
@@ -74,8 +74,7 @@ public class PickUpItem : IGoapAction
 
     public void ApplyTransform(Objective objective, SimulatedState state)
     {
-        // This could maybe be sped up slightly by storing lookingFor, for subsequent use by TriggerConditionsMet
-        Dictionary<string, dynamic> lookingFor = GoapObjective.GetRelevantValueFromObjective("Creature.Carried", objective);
+        Dictionary<string, dynamic> lookingFor = GoapObjective.GetRelevantValueFromObjective("Creature.Owned", objective);
         if (lookingFor == null) throw new FormatException("No relevant conditions in objective");
         SimulatedItem found = null;
         foreach (var group in state.GroupedAvailableItems)
@@ -91,6 +90,6 @@ public class PickUpItem : IGoapAction
 
         if (found == null)
             throw new MissingMemberException("No relevant item available in State.GroupedAvailableItems");
-        state.Creature.Carried.Add(new SimulatedItem(found));
+        state.Creature.Owned.Add(new SimulatedItem(found));
     }
 }

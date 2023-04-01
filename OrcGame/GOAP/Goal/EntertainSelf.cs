@@ -8,11 +8,11 @@ public class EntertainSelf : GoapGoal
 {
     public override Objective GetObjective()
     {
-        var avoidCondition = new Dictionary<string, dynamic>() {
-            { "Creature", new Dictionary<string, dynamic>() {
-                { "IdleState", IdleState.Idle }
-            }}
-        };
+        // var avoidCondition = new Dictionary<string, dynamic>() {
+        //     { "Creature", new Dictionary<string, dynamic>() {
+        //         { "IdleState", IdleState.Idle }
+        //     }}
+        // };
         return new ValueObjective()
         {
             Target = "Creature.IdleState",

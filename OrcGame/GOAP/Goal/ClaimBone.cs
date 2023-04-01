@@ -10,6 +10,7 @@ namespace OrcGame.GOAP.Goal;
 
 public class ClaimBone : GoapGoal
 {
+    private readonly ItemManager _itemManager = ItemManager.GetItemManager();
     // private readonly Dictionary<string, dynamic> _bone = new() { { "Material", Material.Bone } };
     private static readonly Dictionary<string, dynamic> BoneProps = new() { { "Material", MaterialType.Bone } };
     // private static readonly SimulatedItem Bone = new(BoneProps);
@@ -27,8 +28,7 @@ public class ClaimBone : GoapGoal
 
     public override bool TriggerConditionsMet()
     {
-        var itemManager = ItemManager.GetItemManager();
-        var availableBone = itemManager.FindNearestItemWithProps(BoneProps);
+        var availableBone = _itemManager.FindNearestItemWithProps(BoneProps);
         return (availableBone != null);
     }
     

@@ -9,6 +9,7 @@ public class SimulatedCreature : Core.Simulated
     public Vector2 Location { get; private set; }
     public CreatureType CreatureType { get; private set; }
     public CreatureSubtype CreatureSubtype { get; private set; }
+    public IdleState IdleState { get; set; }
     public HashSet<SimulatedItem> Owned { get; private set; } = new();
     public HashSet<SimulatedItem> Carried { get; private set; } = new();
     public HashSet<SimulatedItem> Tagged { get; private set; } = new();
@@ -23,6 +24,7 @@ public class SimulatedCreature : Core.Simulated
         Location = creature.Location;
         CreatureType = creature.CreatureType;
         CreatureSubtype = creature.CreatureSubtype;
+        IdleState = creature.IdleState;
         foreach (var item in creature.Owned)
         {
             Owned.Add(new SimulatedItem(item));
@@ -43,6 +45,7 @@ public class SimulatedCreature : Core.Simulated
         Location = creature.Location;
         CreatureType = creature.CreatureType;
         CreatureSubtype = creature.CreatureSubtype;
+        IdleState = creature.IdleState;
         foreach (var item in creature.Owned)
         {
             Owned.Add(new SimulatedItem(item));
@@ -65,6 +68,7 @@ public class SimulatedCreature : Core.Simulated
         Location = creature.Location;
         CreatureType = creature.CreatureType;
         CreatureSubtype = creature.CreatureSubtype;
+        IdleState = creature.IdleState;
         Owned = new HashSet<SimulatedItem>(creature.Owned);
         Carried = new HashSet<SimulatedItem>(creature.Carried);
         Tagged = new HashSet<SimulatedItem>(creature.Tagged);

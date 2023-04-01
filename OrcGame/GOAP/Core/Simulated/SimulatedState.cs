@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using OrcGame.OgEntity.OgCreature;
 using OrcGame.OgEntity.OgItem;
@@ -54,16 +55,27 @@ public class SimulatedState : Simulated
 	
     public SimulatedState(SimulatedState state)
     {
-        Creature = new SimulatedCreature(state.Creature);
+        CopyPropertiesOf(state);
+    }
 
+    public void CopyPropertiesOf(SimulatedState state)
+    {
+        Creature = new SimulatedCreature(state.Creature);
+        Trace.WriteLine(this == state);
+        Trace.WriteLine(state);
+        Trace.WriteLine(this);
+        Trace.WriteLine(state.GroupedAvailableItems);
+        Trace.WriteLine(this.GroupedAvailableItems);
         foreach (var group in state.GroupedAvailableItems)
         {
-            GroupedAvailableItems.Add(new SimulatedItemGroup(group));
+            this.GroupedAvailableItems.Add(new SimulatedItemGroup(group));
         }
     }
 
     public object GetValueForTarget(string target)
     {
+        // TODO: this was written when we were still using dictionaries for the simulated state.
+        // TODO: See if there's a better way to access this now.
         var targetParts = target.Split(".");
         if (!targetParts.Any()) throw new ArgumentException("Target string cannot be split");
         Simulated currentSim = this;
@@ -80,17 +92,17 @@ public class SimulatedState : Simulated
         return value;
     }
 	
-    public void SetValueForTarget(string target, object value)
-    {
-        var targetParts = target.Split(".");
-        if (!targetParts.Any()) throw new ArgumentException("Target string cannot be split");
-        Simulated currentSim = this;
-		
-        foreach (var propName in targetParts)
-        {
-            var prop = currentSim.GetType().GetProperty(propName);
-            if (prop == null) throw new KeyNotFoundException("State does not have specified target");
-            if (propName == targetParts.Last()) prop.SetValue(currentSim, value);
-        }
-    }
+    // public void SetValueForTarget(string target, object value)
+    // {
+    //     var targetParts = target.Split(".");
+    //     if (!targetParts.Any()) throw new ArgumentException("Target string cannot be split");
+    //     Simulated currentSim = this;
+		  //
+    //     foreach (var propName in targetParts)
+    //     {
+    //         var prop = currentSim.GetType().GetProperty(propName);
+    //         if (prop == null) throw new KeyNotFoundException("State does not have specified target");
+    //         if (propName == targetParts.Last()) prop.SetValue(currentSim, value);
+    //     }
+    // }
 }

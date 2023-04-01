@@ -1,13 +1,7 @@
-using System.Numerics;
-using MonoGame.Extended.Collections;
-using OrcGame.OgEntity;
 using OrcGame.OgEntity.OgCreature;
 using OrcGame.OgEntity.OgItem;
 using OrcGame.GOAP;
-using OrcGame.GOAP.Action;
 using OrcGame.GOAP.Core;
-using OrcGame.GOAP.Core;
-using OrcGame.GOAP.Goal;
 
 namespace Tests.PerformanceTests.GOAP
 
@@ -29,8 +23,7 @@ namespace Tests.PerformanceTests.GOAP
         [Test]
         public void GetPlanForOneCreature()
         {
-            var state = new SimulatedState(_orc);
-            var plan = Planner.FindPathToGoal(_orc, _orc.Goals.First().GetObjective(), state);
+            var plan = Planner.FindPathToGoal(_orc, _orc.Goals.First().GetObjective());
             Assert.That(plan, Is.Not.Null);
         }
 
@@ -44,7 +37,7 @@ namespace Tests.PerformanceTests.GOAP
         private readonly ItemManager _itemManager = ItemManager.GetItemManager();
 
         [OneTimeSetUp]
-        public void MakeTooManyOrcs()
+        public void MakeABunchOfOrcs()
         {
             for (var i = 0; i < 1000; i++)
             {
@@ -69,17 +62,14 @@ namespace Tests.PerformanceTests.GOAP
         }
 
         [Test]
-        public void GetPlanForHundredCreatures()
+        public void GetPlanForCreatures()
         {
             // var hundredOrcs = _orcs.Take(100);
             // var plans = new HashSet<Planner.Branch>();
             foreach (var orc in _orcs)
             {
-                // var state = new SimulatedState(orc);
-                var state = Planner.StatePool.Request();
-                state.InitState(orc);
-                var plan = Planner.FindPathToGoal(orc, orc.Goals.FirstOrDefault()!.GetObjective(), state);
-                Planner.StatePool.Dispose(state);
+
+                var plan = Planner.FindPathToGoal(orc, orc.Goals.FirstOrDefault()!.GetObjective());
                 Planner.BranchPool.Dispose(plan);
                 // plans.Add(plan);
             }
