@@ -61,11 +61,6 @@ public class SimulatedState : Simulated
     public void CopyPropertiesOf(SimulatedState state)
     {
         Creature = new SimulatedCreature(state.Creature);
-        Trace.WriteLine(this == state);
-        Trace.WriteLine(state);
-        Trace.WriteLine(this);
-        Trace.WriteLine(state.GroupedAvailableItems);
-        Trace.WriteLine(this.GroupedAvailableItems);
         foreach (var group in state.GroupedAvailableItems)
         {
             this.GroupedAvailableItems.Add(new SimulatedItemGroup(group));

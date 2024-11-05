@@ -1,15 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Serilog;
 // using MonoGame.Extended.Collections;
 using OrcGame.OgEntity.OgCreature;
 using OrcGame.GOAP.Core;
 using OrcGame.Utility;
+using ILoggerFactory = Castle.Core.Logging.ILoggerFactory;
 
 namespace OrcGame.GOAP;
 
+
 public static class Planner
 {
+    
     public static ObjectPool<SimulatedState> StatePool = new(5);
     public static ObjectPool<SimulatedCreature> CreaturePool = new(5);
     public static ObjectPool<SimulatedItemGroup> GroupPool = new(50);
@@ -21,6 +25,7 @@ public static class Planner
 
     public static Branch FindPathToGoal(Creature creature, Objective objective)
     {
+        
         var state = StatePool.Request();
         state.InitState(creature);
         var path = BranchPool.Request();
@@ -35,6 +40,7 @@ public static class Planner
         //     Objective = objective,
         //     Branches = FindBranchingPaths(creature, objective, state)
         // };
+        Log.Information("Path for creature {creatureName} found: {@bestPath}", creature.InstanceName, path);
         return path;
     }
  

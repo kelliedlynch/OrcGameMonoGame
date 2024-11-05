@@ -8,16 +8,26 @@ using OrcGame.GOAP.Core;
 
 namespace OrcGame.GOAP.Goal;
 
-public class ClaimBone : GoapGoal
+public class CarryOwnedItem : GoapGoal
 {
     private readonly ItemManager _itemManager = ItemManager.GetItemManager();
     // private readonly Dictionary<string, dynamic> _bone = new() { { "Material", Material.Bone } };
-    private static readonly Dictionary<string, dynamic> BoneProps = new() { { "Material", MaterialType.Bone } };
+    private Dictionary<string, dynamic> _itemProps;
     // private static readonly SimulatedItem Bone = new(BoneProps);
-
+    
     public override bool IsValid()
     {
+        // var ownsBone = false;
+        
         var ownsBone = Creature.Owned.Any(item => item.Material == MaterialType.Bone);
+
+        // foreach (var ownedItem in Creature.Owned)
+        // {
+        //     foreach (KeyValuePair<string, dynamic> prop in ItemProps)
+        //     {
+        //         ownedItem.GetType().GetProperty(prop.Key)?.GetValue(ownedItem);
+        //     }
+        // }
 
         if (ownsBone == false) return true;
 
@@ -28,7 +38,7 @@ public class ClaimBone : GoapGoal
 
     public override bool TriggerConditionsMet()
     {
-        var availableBone = _itemManager.FindNearestItemWithProps(BoneProps);
+        var availableBone = _itemManager.FindNearestItemWithProps(_itemProps);
         return (availableBone != null);
     }
     
@@ -39,14 +49,14 @@ public class ClaimBone : GoapGoal
             Target = "Creature.Carried",
             QueryType = QueryType.ContainsAtLeast,
             Quantity = 1,
-            PropsQuery = BoneProps
+            PropsQuery = _itemProps
         };
         var ownedContainsBone = new QueryObjective()
         {
             Target = "Creature.Owned",
             QueryType = QueryType.ContainsAtLeast,
             Quantity = 1,
-            PropsQuery = BoneProps
+            PropsQuery = _itemProps
         };
     
         var compiledObjective = new OperatorObjective()
@@ -63,9 +73,11 @@ public class ClaimBone : GoapGoal
         return GoalPriority.Want;
     }
     
-    public ClaimBone(Creature creature) : base(creature)
+    public CarryOwnedItem(Creature creature, Dictionary<string, dynamic> itemProperties) : base(creature)
     {
+        _itemProps = itemProperties;
     }
+
 }
 
 

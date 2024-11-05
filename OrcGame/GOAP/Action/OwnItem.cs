@@ -5,7 +5,7 @@ using OrcGame.GOAP.Core;
 
 namespace OrcGame.GOAP.Action;
 
-public class ClaimItem : IGoapAction
+public class OwnItem : IGoapAction
 {
     // IsValid is run only at the beginning of action planning, and only tests against the current state
     // of the world. IsRelevant is where we determine if the action is still doable after a 
@@ -17,7 +17,7 @@ public class ClaimItem : IGoapAction
 
     public int GetCost()
     {
-        return 1;
+        return 0;
     }
 
     public bool IsRelevant(Objective objective)
@@ -46,22 +46,22 @@ public class ClaimItem : IGoapAction
         {
             // If relevant item isn't available, add that to the objectives
             OperatorObjective newObjective;
-            var availableBone = Planner.QuObjPool.Request();
-            availableBone.Target = "GroupedAvailableItems";
-            availableBone.QueryType = QueryType.ContainsAtLeast;
-            availableBone.Quantity = 1;
-            availableBone.PropsQuery = lookingFor;
+            var availableItem = Planner.QuObjPool.Request();
+            availableItem.Target = "GroupedAvailableItems";
+            availableItem.QueryType = QueryType.ContainsAtLeast;
+            availableItem.Quantity = 1;
+            availableItem.PropsQuery = lookingFor;
         
             if (objective is OperatorObjective { Operator: Operator.And } obj)
             {
-                obj.ObjectivesList.Add(availableBone);
+                obj.ObjectivesList.Add(availableItem);
                 newObjective = obj;
             }
             else
             {
                 newObjective = Planner.OpObjPool.Request();
                 newObjective.Operator = Operator.And;
-                newObjective.ObjectivesList = new HashSet<Objective>() { objective, availableBone };
+                newObjective.ObjectivesList = new HashSet<Objective>() { objective, availableItem };
             }
 
             return (false, newObjective);
