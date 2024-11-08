@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using OrcGame.GOAP.Core;
 
 namespace OrcGame.OgEntity.OgItem;
 
 public sealed class ItemManager
 {
     private static readonly Lazy<ItemManager> Instance = new Lazy<ItemManager>(() => new ItemManager());
-    public HashSet<Item> AvailableItems { get; } = new();
-    public HashSet<SimulatedItemGroup> GroupedAvailableItems { get; private set; } = new();
-    public HashSet<Item> UnavailableItems { get; } = new();
+    public HashSet<Item> WorldItems { get; } = new();
+    public HashSet<Item> AvailableItems => WorldItems.Where(x => !x.IsTagged && !x.IsOwned).ToHashSet();
+    public HashSet<Item> UnavailableItems => WorldItems.Where(x => x.IsTagged || x.IsOwned).ToHashSet();
+    public HashSet<Item> ItemsOnGround => WorldItems.Where(x => !x.IsCarried).ToHashSet();
 
     public static ItemManager GetItemManager() { return Instance.Value; }
 
@@ -32,33 +32,11 @@ public sealed class ItemManager
 
     public void AddItemToWorld(Item item)
     {
-        AvailableItems.Add(item);
-
-        // if (!GroupedAvailableItems.Any())
-        // {
-        //     GroupedAvailableItems.Add(new SimulatedItemGroup(item));
-        //     return;
-        // }
-        var sim = new SimulatedItem(item);
-        foreach (var group in GroupedAvailableItems)
-        {
-            if (group.IsGroupMember(sim))
-            {
-                group.AddToGroup(sim);
-                return;
-            }
-        }
-        GroupedAvailableItems.Add(new SimulatedItemGroup(item));
+        WorldItems.Add(item);
     }
 
     public void RemoveItemFromWorld(Item item)
     {
-        if (AvailableItems.Contains(item))
-        {
-            AvailableItems.Remove(item);
-        } else if (UnavailableItems.Contains(item))
-        {
-            UnavailableItems.Remove(item);
-        }
+        WorldItems.Remove(item);
     }
 }

@@ -18,8 +18,4 @@
       <ProjectReference Include="..\OrcGame\OrcGame.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="UnitTests" />
-    </ItemGroup>
-
 </Project>
